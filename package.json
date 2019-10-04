@@ -1,0 +1,70 @@
+{
+  "name": "sacn",
+  "version": "0.7.0",
+  "description": "💡 🎭 Receive sACN data (DMX over IP)",
+  "author": "Kyle Hensel",
+  "license": "Apache-2.0",
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "tsc",
+    "unit-tests": "ts-mocha 'test/**/*.ts'",
+    "lint": "eslint --ext .ts --ignore-path .gitignore .",
+    "test": "npm run lint && npm run build && npm run unit-tests"
+  },
+  "main": "dist",
+  "types": "dist/index.d.ts",
+  "files": [
+    "src",
+    "dist",
+    "tsconfig.json"
+  ],
+  "repository": "git://github.com/k-yle/sACN.git",
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "devDependencies": {
+    "@types/mocha": "^5.2.7",
+    "@types/node": "^12.7.11",
+    "@typescript-eslint/eslint-plugin": "^2.3.2",
+    "@typescript-eslint/parser": "^2.3.2",
+    "eslint": "^6.5.1",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.18.2",
+    "mocha": "^6.2.1",
+    "ts-mocha": "^6.0.0",
+    "typescript": "^3.6.3"
+  },
+  "eslintConfig": {
+    "env": {
+      "es6": true,
+      "node": true
+    },
+    "extends": [
+      "airbnb-base",
+      "plugin:@typescript-eslint/recommended"
+    ],
+    "plugins": [
+      "@typescript-eslint"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "rules": {
+      "max-len": "warn",
+      "no-console": "off",
+      "no-await-in-loop": "off",
+      "no-restricted-syntax": "off",
+      "guard-for-in": "off",
+      "prefer-destructuring": "warn",
+      "prefer-object-spread": "warn",
+      "no-warning-comments": "warn",
+      "import/no-unresolved": "off",
+      "import/prefer-default-export": "off",
+      "indent": "off",
+      "@typescript-eslint/indent": [
+        "error",
+        2
+      ],
+      "@typescript-eslint/camelcase": "off",
+      "node/no-unsupported-features/es-syntax": "off"
+    }
+  }
+}
