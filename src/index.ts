@@ -3,20 +3,9 @@ import { EventEmitter } from 'events';
 import { AssertionError } from 'assert';
 
 import Packet from './packet';
+import { multicastGroup } from './util';
 
-function multicastGroup(universe: number): string {
-  if (universe < 1 || universe > 63999) throw new RangeError('universe must be between 1-63999');
-  // eslint-disable-next-line no-bitwise
-  return `239.255.${universe >> 8}.${universe & 255}`;
-}
-
-export function objectify(buf: Buffer): Record<string, number> {
-  const data = {};
-  buf.forEach((val, ch) => {
-    if (val > 0) data[ch + 1] = Math.round(val / 2.55);
-  });
-  return data;
-}
+export * from './util';
 
 export class Receiver extends EventEmitter {
   private socket: dgram.Socket;

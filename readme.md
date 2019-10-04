@@ -1,10 +1,12 @@
-# node.js sACN receiver
+# sACN receiver in node.js
 [![Build Status](https://github.com/k-yle/sACN/workflows/Build%20and%20Test/badge.svg)](https://github.com/k-yle/sACN/actions)
+[![Coverage Status](https://coveralls.io/repos/github/k-yle/sACN/badge.svg?branch=master)](https://coveralls.io/github/k-yle/sACN?branch=master)
 [![npm version](https://badge.fury.io/js/sacn.svg)](https://badge.fury.io/js/sacn)
+[![npm](https://img.shields.io/npm/dt/sacn.svg)](https://www.npmjs.com/package/sacn)
 
 💡 🎭 This module can receive [DMX](https://en.wikipedia.org/wiki/DMX512) data sent via [sACN](https://en.wikipedia.org/wiki/E1.31) from professional lighting consoles (e.g. [ETC](https://www.etcconnect.com/), [Onyx](https://obsidiancontrol.com/)).
 
-> 🔦 [RDM](https://en.wikipedia.org/wiki/RDM_(lighting)) is not support yet, see [issue #1](https://github.com/k-yle/sACN/issues/1)
+> 🔦 Sending [RDM](https://en.wikipedia.org/wiki/RDM_(lighting)) data to fixtures is not implemented yet, see [issue #1](https://github.com/k-yle/sACN/issues/1).
 
 ## Install
 ```bash

@@ -1,6 +1,6 @@
 {
   "name": "sacn",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "💡 🎭 Receive sACN data (DMX over IP)",
   "author": "Kyle Hensel",
   "license": "Apache-2.0",
