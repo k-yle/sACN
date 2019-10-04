@@ -6,11 +6,12 @@
   "license": "Apache-2.0",
   "scripts": {
     "build": "tsc",
-    "prepublishOnly": "tsc",
-    "unit-tests": "nyc mocha",
     "lint": "eslint --ext .ts --ignore-path .gitignore .",
+    "unit-tests": "nyc mocha",
     "test": "npm run lint && npm run build && npm run unit-tests",
-    "coverage": "nyc report --reporter=text-lcov | coveralls"
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "prepublishOnly": "tsc",
+    "trypublish": "npm publish || true"
   },
   "main": "dist",
   "types": "dist/index.d.ts",

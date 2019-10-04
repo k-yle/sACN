@@ -6,6 +6,7 @@ import Packet from './packet';
 import { multicastGroup } from './util';
 
 export * from './util';
+export { default as Packet } from './packet';
 
 export class Receiver extends EventEmitter {
   private socket: dgram.Socket;
