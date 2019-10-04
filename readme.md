@@ -2,7 +2,7 @@
 [![Build Status](https://github.com/k-yle/sACN/workflows/Build%20and%20Test/badge.svg)](https://github.com/k-yle/sACN/actions)
 [![Coverage Status](https://coveralls.io/repos/github/k-yle/sACN/badge.svg?branch=master)](https://coveralls.io/github/k-yle/sACN?branch=master)
 [![npm version](https://badge.fury.io/js/sacn.svg)](https://badge.fury.io/js/sacn)
-[![npm](https://img.shields.io/npm/dt/sacn.svg)](https://www.npmjs.com/package/sacn)
+[![npm](https://img.shields.io/npm/dt/sacn.svg)](https://www.npmjs.com/package/sacn) [![Greenkeeper badge](https://badges.greenkeeper.io/k-yle/sACN.svg)](https://greenkeeper.io/)
 
 💡 🎭 This module can receive [DMX](https://en.wikipedia.org/wiki/DMX512) data sent via [sACN](https://en.wikipedia.org/wiki/E1.31) from professional lighting consoles (e.g. [ETC](https://www.etcconnect.com/), [Onyx](https://obsidiancontrol.com/)).
 
