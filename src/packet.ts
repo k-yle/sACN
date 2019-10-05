@@ -46,7 +46,6 @@ export default class Packet {
   slotsData: Buffer;
 
   public constructor(private buffer: Buffer, public sourceAddress?: string) {
-    console.log(buffer.join(','));
     /* root layer */
     this.root_vector = this.buffer.readUInt32BE(18);
     this.root_fl = this.buffer.readUInt16BE(16);

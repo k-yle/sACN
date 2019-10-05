@@ -1,6 +1,6 @@
 {
   "name": "sacn",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "description": "💡 🎭 Receive sACN data (DMX over IP)",
   "author": "Kyle Hensel",
   "license": "Apache-2.0",
@@ -24,6 +24,18 @@
   "engines": {
     "node": ">=8.0.0"
   },
+  "keywords": [
+    "dmx",
+    "dmx512",
+    "sacn",
+    "artnet",
+    "stage-lighting",
+    "rdm",
+    "e131",
+    "e133",
+    "enttec",
+    "dmxking"
+  ],
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^0.1.3",
     "@types/mocha": "^5.2.7",
@@ -54,22 +66,14 @@
     "parser": "@typescript-eslint/parser",
     "rules": {
       "max-len": "warn",
-      "no-console": "off",
-      "no-await-in-loop": "off",
       "no-restricted-syntax": "off",
       "guard-for-in": "off",
-      "prefer-destructuring": "warn",
-      "prefer-object-spread": "warn",
-      "no-warning-comments": "warn",
       "import/no-unresolved": "off",
       "import/prefer-default-export": "off",
-      "indent": "off",
-      "@typescript-eslint/indent": [
-        "error",
-        2
-      ],
       "@typescript-eslint/camelcase": "off",
-      "node/no-unsupported-features/es-syntax": "off"
+      "prefer-destructuring": "warn",
+      "prefer-object-spread": "warn",
+      "no-warning-comments": "warn"
     }
   },
   "nyc": {
