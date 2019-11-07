@@ -18,34 +18,34 @@ enum DmpVector { DATA = 2 }
 
 export default class Packet {
   /* root layer */
-  private root_vector: RootVector;
-  private root_fl: number;
-  private preambleSize: number;
-  private postambleSize: number;
-  private acnPid: Buffer;
-  cid: Buffer; // unique id of the sender
+  private readonly root_vector: RootVector;
+  private readonly root_fl: number;
+  private readonly preambleSize: number;
+  private readonly postambleSize: number;
+  private readonly acnPid: Buffer;
+  readonly cid: Buffer; // unique id of the sender
 
   /* framing layer */
-  private frame_vector: FrameVector;
-  private frame_fl: number;
-  options: number;
-  sequence: number;
-  sourceName: string;
-  priority: number; // 0 to 200; default 100
-  syncUniverse: number; // universe used for annoucing timesync
-  universe: number;
+  private readonly frame_vector: FrameVector;
+  private readonly frame_fl: number;
+  readonly options: number;
+  readonly sequence: number;
+  readonly sourceName: string;
+  readonly priority: number; // 0 to 200; default 100
+  readonly syncUniverse: number; // universe used for annoucing timesync
+  readonly universe: number;
 
   /* DMP layer */
-  private dmp_vector: DmpVector;
-  private dmp_fl: number;
-  private type: number;
-  private firstAddress: number;
-  private addressIncrement: number;
-  propertyValueCount: number;
-  private startCode: number;
-  slotsData: Buffer;
+  private readonly dmp_vector: DmpVector;
+  private readonly dmp_fl: number;
+  private readonly type: number;
+  private readonly firstAddress: number;
+  private readonly addressIncrement: number;
+  readonly propertyValueCount: number;
+  private readonly startCode: number;
+  readonly slotsData: Buffer;
 
-  public constructor(private buffer: Buffer, public sourceAddress?: string) {
+  public constructor(private readonly buffer: Buffer, public readonly sourceAddress?: string) {
     /* root layer */
     this.root_vector = this.buffer.readUInt32BE(18);
     this.root_fl = this.buffer.readUInt16BE(16);

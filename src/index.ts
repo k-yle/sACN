@@ -8,6 +8,13 @@ import { multicastGroup } from './util';
 export * from './util';
 export { default as Packet } from './packet';
 
+export declare interface Receiver {
+  on(event: 'packet', listener: (packet: Packet) => void): this;
+  on(event: 'PacketCorruption', listener: (err: AssertionError) => void): this;
+  on(event: 'PacketOutOfOrder', listener: (err: Error) => void): this;
+  on(event: string, listener: Function): this;
+}
+
 export class Receiver extends EventEmitter {
   private socket: dgram.Socket;
 
@@ -29,8 +36,6 @@ export class Receiver extends EventEmitter {
 
     this.socket = dgram.createSocket({ type: 'udp4', reuseAddr });
     this.lastSequence = {};
-
-    // for (const uni of universes) this.lastSequence[uni] = 0;
 
     this.socket.on('message', (msg, rinfo) => {
       try {
