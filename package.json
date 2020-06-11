@@ -22,7 +22,7 @@
   ],
   "repository": "git://github.com/k-yle/sACN.git",
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=10.0.0"
   },
   "keywords": [
     "dmx",
