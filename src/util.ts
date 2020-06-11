@@ -6,7 +6,7 @@ export function multicastGroup(universe: number): string {
   throw new RangeError('universe must be between 1-63999');
 }
 
-export function objectify(buf: Buffer): Record<string, number> {
+export function objectify(buf: Buffer): Record<number, number> {
   const data = {};
   buf.forEach((val, ch) => {
     if (val > 0) data[ch + 1] = Math.round(val / 2.55);

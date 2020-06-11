@@ -1,19 +1,22 @@
 # sACN receiver in node.js
+
 [![Build Status](https://github.com/k-yle/sACN/workflows/Build%20and%20Test/badge.svg)](https://github.com/k-yle/sACN/actions)
 [![Coverage Status](https://coveralls.io/repos/github/k-yle/sACN/badge.svg?branch=master)](https://coveralls.io/github/k-yle/sACN?branch=master)
 [![npm version](https://badge.fury.io/js/sacn.svg)](https://badge.fury.io/js/sacn)
-[![npm](https://img.shields.io/npm/dt/sacn.svg)](https://www.npmjs.com/package/sacn) [![Greenkeeper badge](https://badges.greenkeeper.io/k-yle/sACN.svg)](https://greenkeeper.io/)
+[![npm](https://img.shields.io/npm/dt/sacn.svg)](https://www.npmjs.com/package/sacn)
 
 💡 🎭 This module can receive [DMX](https://en.wikipedia.org/wiki/DMX512) data sent via [sACN](https://en.wikipedia.org/wiki/E1.31) from professional lighting consoles (e.g. [ETC](https://www.etcconnect.com/), [Onyx](https://obsidiancontrol.com/)).
 
-> 🔦 Sending [RDM](https://en.wikipedia.org/wiki/RDM_(lighting)) data to fixtures is not implemented yet, see [issue #1](https://github.com/k-yle/sACN/issues/1).
+> 🔦 Sending [RDM](<https://en.wikipedia.org/wiki/RDM_(lighting)>) data to fixtures is not implemented yet, see [issue #1](https://github.com/k-yle/sACN/issues/1).
 
 ## Install
+
 ```bash
 npm install sacn
 ```
 
 ## Usage
+
 ```js
 const { Receiver, objectify } = require('sacn');
 
@@ -38,16 +41,17 @@ sACN.on('PacketOutOfOrder', (err) => {
 
 The `objectify` function is a helper that converts the Buffer (e.g. `Buffer<ff 00 ff>`) into a human-readable object (e.g. `{ 1: 100, 2: 0, 3: 100 }`).
 
-
 ### Table 1 - Options
-| Name      | Type     | Purpose | Default |
-|-----------|----------|---------|---------|
-| `universes` | `number[]` | Required. List of universes to listen to. Must be within 0-63999 | `[]` |
-| `port` | `number` | Optional. The multicast port to use. All professional consoles broadcast to the default port. | `5568` |
-| `iface` | `string` | Optional. If the computer is connected to multiple networks, specify which network adaptor to use by using this computer's local IP address | `null` |
-| `reuseAddr` | `boolean` | Optional. Allow multiple programs on your computer to listen to the same sACN universe. | `false` |
+
+| Name        | Type       | Purpose                                                                                                                                     | Default |
+| ----------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `universes` | `number[]` | Required. List of universes to listen to. Must be within 0-63999                                                                            | `[]`    |
+| `port`      | `number`   | Optional. The multicast port to use. All professional consoles broadcast to the default port.                                               | `5568`  |
+| `iface`     | `string`   | Optional. If the computer is connected to multiple networks, specify which network adaptor to use by using this computer's local IP address | `null`  |
+| `reuseAddr` | `boolean`  | Optional. Allow multiple programs on your computer to listen to the same sACN universe.                                                     | `false` |
 
 ### Table 2 - Packet properties
+
 ```js
 {
   "sourceName": "Onyx", // controller that sent the packet
@@ -63,17 +67,20 @@ The `objectify` function is a helper that converts the Buffer (e.g. `Buffer<ff 0
 ```
 
 # Contribute
+
 ```bash
 npm run build # compile typescript
 npm test # run tests
 ```
 
 # Network Requirements
+
 - [x] Multicast must be enabled. sACN uses port `5568` on `239.255.x.x`
 - [x] Network infrastructure that supports at least 100Mbps (100BaseT)
 
-
 # Protocol Docs
+
 The Architecture for Control Networks (ACN) and derived protocols are created by the Entertainment Services and Technology Association.
- - sACN is defined in [ANSI E1.31](./docs/E1.31-2018.pdf)
- - RDMNet is defined in [ANSI E1.33](./docs/E1.33-2019.pdf)
+
+- sACN is defined in [ANSI E1.31](./docs/E1.31-2018.pdf)
+- RDMNet is defined in [ANSI E1.33](./docs/E1.33-2019.pdf)
