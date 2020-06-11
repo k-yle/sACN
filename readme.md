@@ -45,7 +45,7 @@ The `objectify` function is a helper that converts the Buffer (e.g. `Buffer<ff 0
 
 | Name        | Type       | Purpose                                                                                                                                     | Default |
 | ----------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| `universes` | `number[]` | Required. List of universes to listen to. Must be within 0-63999                                                                            | `[]`    |
+| `universes` | `number[]` | Required. List of universes to listen to. Must be within 1-63999                                                                            | `[]`    |
 | `port`      | `number`   | Optional. The multicast port to use. All professional consoles broadcast to the default port.                                               | `5568`  |
 | `iface`     | `string`   | Optional. If the computer is connected to multiple networks, specify which network adaptor to use by using this computer's local IP address | `null`  |
 | `reuseAddr` | `boolean`  | Optional. Allow multiple programs on your computer to listen to the same sACN universe.                                                     | `false` |

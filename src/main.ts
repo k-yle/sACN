@@ -69,8 +69,6 @@ export class Receiver extends EventEmitter {
     });
     this.socket.bind(this.port, () => {
       for (const uni of this.universes) {
-        if (uni > 63999 && uni !== 64214)
-          throw new Error('Universe must be within 0-63999');
         this.socket.addMembership(multicastGroup(uni), this.iface);
       }
     });
