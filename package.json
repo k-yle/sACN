@@ -1,13 +1,13 @@
 {
   "name": "sacn",
-  "version": "0.7.3",
+  "version": "2.3.1",
   "description": "💡 🎭 Receive sACN data (DMX over IP)",
   "author": "Kyle Hensel",
   "license": "Apache-2.0",
   "scripts": {
     "build": "tsc",
     "lint": "eslint --ext .ts --ignore-path .gitignore .",
-    "unit-tests": "nyc mocha",
+    "unit-tests": "nyc mocha -r ts-node/register --timeout 10000 'test/**/*.test.ts'",
     "test": "npm run lint && npm run build && npm run unit-tests",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "prepublishOnly": "tsc",
@@ -22,7 +22,7 @@
   ],
   "repository": "git://github.com/k-yle/sACN.git",
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=10.0.0"
   },
   "keywords": [
     "dmx",
@@ -37,47 +37,24 @@
     "dmxking"
   ],
   "devDependencies": {
-    "@istanbuljs/nyc-config-typescript": "^0.1.3",
-    "@types/mocha": "^5.2.7",
-    "@types/node": "12.12.14",
-    "@typescript-eslint/eslint-plugin": "^2.3.2",
-    "@typescript-eslint/parser": "^2.3.2",
-    "coveralls": "^3.0.6",
-    "eslint": "^6.5.1",
-    "eslint-config-airbnb-base": "^14.0.0",
-    "eslint-plugin-import": "^2.18.2",
-    "mocha": "^6.2.1",
-    "nyc": "^14.1.1",
-    "ts-node": "^8.4.1",
-    "typescript": "^3.6.3"
+    "@types/mocha": "^7.0.2",
+    "@types/node": "^14.0.13",
+    "coveralls": "^3.1.0",
+    "eslint": "^7.2.0",
+    "eslint-config-kyle": "^1.0.32",
+    "mocha": "^8.0.1",
+    "nyc": "^15.1.0",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.5"
   },
   "eslintConfig": {
-    "env": {
-      "es6": true,
-      "node": true
-    },
-    "extends": [
-      "airbnb-base",
-      "plugin:@typescript-eslint/recommended"
-    ],
-    "plugins": [
-      "@typescript-eslint"
-    ],
-    "parser": "@typescript-eslint/parser",
-    "rules": {
-      "max-len": "warn",
-      "no-restricted-syntax": "off",
-      "guard-for-in": "off",
-      "import/no-unresolved": "off",
-      "import/prefer-default-export": "off",
-      "@typescript-eslint/camelcase": "off",
-      "prefer-destructuring": "warn",
-      "prefer-object-spread": "warn",
-      "no-warning-comments": "warn"
-    }
+    "extends": "kyle"
   },
   "nyc": {
-    "extends": "@istanbuljs/nyc-config-typescript",
+    "extension": [
+      ".ts",
+      ".tsx"
+    ],
     "all": true,
     "reporter": [
       "text",

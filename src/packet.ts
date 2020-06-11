@@ -7,16 +7,36 @@ import * as assert from 'assert';
 /* eslint-disable lines-between-class-members, no-bitwise, no-control-regex */
 
 const ACN_PID = Buffer.from([
-  0x41, 0x53, 0x43, 0x2d, 0x45, 0x31, 0x2e, 0x31, 0x37, 0x00, 0x00, 0x00,
+  0x41,
+  0x53,
+  0x43,
+  0x2d,
+  0x45,
+  0x31,
+  0x2e,
+  0x31,
+  0x37,
+  0x00,
+  0x00,
+  0x00,
 ]);
 
-enum RootVector { DATA = 4, EXTENDED = 8 }
-enum FrameVector { DATA = 2 }
-enum DmpVector { DATA = 2 }
+enum RootVector {
+  DATA = 4,
+  EXTENDED = 8,
+}
+enum FrameVector {
+  DATA = 2,
+}
+enum DmpVector {
+  DATA = 2,
+}
+
+/* eslint-disable camelcase */
 
 // enum ExtendedFrameVector { SYNC = 1, DISCOVERY = 2 }
 
-export default class Packet {
+export class Packet {
   /* root layer */
   private readonly root_vector: RootVector;
   private readonly root_fl: number;
@@ -45,7 +65,10 @@ export default class Packet {
   private readonly startCode: number;
   readonly slotsData: Buffer;
 
-  public constructor(private readonly buffer: Buffer, public readonly sourceAddress?: string) {
+  public constructor(
+    private readonly buffer: Buffer,
+    public readonly sourceAddress?: string,
+  ) {
     /* root layer */
     this.root_vector = this.buffer.readUInt32BE(18);
     this.root_fl = this.buffer.readUInt16BE(16);
@@ -59,7 +82,9 @@ export default class Packet {
     this.frame_fl = this.buffer.readUInt16BE(38);
     this.options = this.buffer.readUInt8(112);
     this.sequence = this.buffer.readUInt8(111);
-    this.sourceName = this.buffer.toString('ascii', 44, 107).replace(/\x00/g, '');
+    this.sourceName = this.buffer
+      .toString('ascii', 44, 107)
+      .replace(/\x00/g, '');
     this.priority = this.buffer.readUInt8(108);
     this.syncUniverse = this.buffer.readUInt16BE(109);
     this.universe = this.buffer.readUInt16BE(113);
@@ -77,7 +102,7 @@ export default class Packet {
     this.validate();
   }
 
-  private validate(): void|never {
+  private validate(): void | never {
     // ascertains that this packet implements ACN
     assert.deepStrictEqual(this.acnPid, ACN_PID);
 
@@ -87,11 +112,11 @@ export default class Packet {
     assert.strictEqual(this.dmp_vector, DmpVector.DATA);
 
     // constants within the UDP overhead
-    assert.strictEqual(this.type, 0xa1); //= 61
+    assert.strictEqual(this.type, 0xa1); // = 61
     assert.strictEqual(this.firstAddress, 0);
     assert.strictEqual(this.addressIncrement, 1);
     assert.strictEqual(this.startCode, 0);
-    assert.strictEqual(this.preambleSize, 0x0010); //= 16
+    assert.strictEqual(this.preambleSize, 0x0010); // = 16
     assert.strictEqual(this.postambleSize, 0);
   }
 
