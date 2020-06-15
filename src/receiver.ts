@@ -24,11 +24,11 @@ export class Receiver extends EventEmitter {
 
   private lastSequence: Record<string, number>;
 
-  private port: Props['port'];
+  private readonly port: Props['port'];
 
   public universes: Props['universes'];
 
-  private iface: Props['iface'];
+  private readonly iface: Props['iface'];
 
   constructor({
     universes = [1],

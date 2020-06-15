@@ -6,10 +6,30 @@ export function multicastGroup(universe: number): string {
   throw new RangeError('universe must be between 1-63999');
 }
 
+export const dp = (n: number, decimals = 2): number =>
+  Math.round(n * 10 ** decimals) / 10 ** decimals;
+
 export function objectify(buf: Buffer): Record<number, number> {
   const data = {};
   buf.forEach((val, ch) => {
-    if (val > 0) data[ch + 1] = Math.round(val / 2.55);
+    if (val > 0) data[ch + 1] = dp(val / 2.55, 2); // rounding to 2dp will not lose any data
   });
   return data;
 }
+
+export const inRange = (n: number): number =>
+  Math.min(255, Math.max(Math.round(n), 0));
+
+export function bit(bitt: 8 | 16 | 32, num: number): number[] {
+  // we could just do a _bit_ of shifting here instead :P
+  // e.g. (0x1234 >> 8) & 255
+  const arr = new ArrayBuffer(bitt / 8);
+
+  // this mutates `arr`
+  const view = new DataView(arr);
+  view[`setUint${bitt}`](0, num, false); // ByteOffset = 0; litteEndian = false
+
+  return Array.from(new Uint8Array(arr));
+}
+export const empty = (len: number): number[] =>
+  Array.from(new Uint8Array(new ArrayBuffer(len)));
