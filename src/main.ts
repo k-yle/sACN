@@ -16,6 +16,7 @@ export declare interface Receiver {
   on(event: 'packet', listener: (packet: Packet) => void): this;
   on(event: 'PacketCorruption', listener: (err: AssertionError) => void): this;
   on(event: 'PacketOutOfOrder', listener: (err: Error) => void): this;
+  on(event: 'error', listener: (err: Error) => void): this;
 }
 
 export class Receiver extends EventEmitter {
@@ -69,7 +70,11 @@ export class Receiver extends EventEmitter {
     });
     this.socket.bind(this.port, () => {
       for (const uni of this.universes) {
-        this.socket.addMembership(multicastGroup(uni), this.iface);
+        try {
+          this.socket.addMembership(multicastGroup(uni), this.iface);
+        } catch (err) {
+          this.emit('error', err); // emit errors from socket.addMembership
+        }
       }
     });
   }

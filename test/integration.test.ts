@@ -43,4 +43,20 @@ describe('Receiver', () => {
 
     sACN.close();
   });
+  it('throws a catchable error when an invalid interface is supplied', async () => {
+    const errors: Error[] = [];
+    const sACN = new Receiver({
+      universes: [1],
+      iface: '/dev/null',
+    });
+    sACN.on('error', (ex) => errors.push(ex));
+
+    // stuff takes time
+    await sleep(500);
+
+    assert.equal(errors.length, 1);
+    assert.equal(errors[0].message, 'addMembership EINVAL');
+
+    sACN.close();
+  });
 });

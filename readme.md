@@ -37,6 +37,10 @@ sACN.on('PacketCorruption', (err) => {
 sACN.on('PacketOutOfOrder', (err) => {
   // trigged if a packet is recieved out of order
 });
+
+sACN.on('error', (err) => {
+  // trigged if there is an internal error (e.g. the suppied `iface` does not exist)
+});
 ```
 
 The `objectify` function is a helper that converts the Buffer (e.g. `Buffer<ff 00 ff>`) into a human-readable object (e.g. `{ 1: 100, 2: 0, 3: 100 }`).
