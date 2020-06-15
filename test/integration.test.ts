@@ -59,4 +59,29 @@ describe('Receiver', () => {
 
     sACN.close();
   });
+  it('has working addUniverse and removeUniverse methods', async () => {
+    const sACN = new Receiver({
+      universes: [1, 2, 500],
+    });
+    await sleep(500);
+    assert.deepEqual(sACN.universes, [1, 2, 500]);
+
+    sACN.addUniverse(4);
+    await sleep(500);
+    assert.deepEqual(sACN.universes, [1, 2, 500, 4]);
+
+    sACN.addUniverse(4); // making sure there's no error re-adding something
+    await sleep(500);
+    assert.deepEqual(sACN.universes, [1, 2, 500, 4]);
+
+    sACN.removeUniverse(500);
+    await sleep(500);
+    assert.deepEqual(sACN.universes, [1, 2, 4]);
+
+    sACN.removeUniverse(123); // making sure there's no error deleting something non-existant
+    await sleep(500);
+    assert.deepEqual(sACN.universes, [1, 2, 4]);
+
+    sACN.close();
+  });
 });

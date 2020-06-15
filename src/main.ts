@@ -26,7 +26,7 @@ export class Receiver extends EventEmitter {
 
   private port: Props['port'];
 
-  private universes: Props['universes'];
+  public universes: Props['universes'];
 
   private iface: Props['iface'];
 
@@ -79,7 +79,26 @@ export class Receiver extends EventEmitter {
     });
   }
 
-  close(): void {
+  public addUniverse(universe: number): this {
+    // already listening to this one; do nothing
+    if (this.universes.includes(universe)) return this;
+
+    this.socket.addMembership(multicastGroup(universe), this.iface);
+    this.universes.push(universe);
+    return this;
+  }
+
+  public removeUniverse(universe: number): this {
+    // not listening to this one; do nothing
+    if (!this.universes.includes(universe)) return this;
+
+    this.socket.dropMembership(multicastGroup(universe), this.iface);
+    this.universes = this.universes.filter((n) => n !== universe);
+    return this;
+  }
+
+  public close(): this {
     this.socket.close();
+    return this;
   }
 }

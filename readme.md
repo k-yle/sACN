@@ -38,9 +38,22 @@ sACN.on('PacketOutOfOrder', (err) => {
   // trigged if a packet is recieved out of order
 });
 
+/* advanced usage below */
+
 sACN.on('error', (err) => {
-  // trigged if there is an internal error (e.g. the suppied `iface` does not exist)
+  // trigged if there is an internal error (e.g. the supplied `iface` does not exist)
 });
+
+// start listening to a new universe (universe 3 in this example)
+sACN.addUniverse(3);
+
+// stop listening to a universe 1
+sACN.removeUniverse(1);
+
+// close all connections; terminate the server
+sACN.close();
+
+sACN.universes; // is a list of the universes being listened to
 ```
 
 The `objectify` function is a helper that converts the Buffer (e.g. `Buffer<ff 00 ff>`) into a human-readable object (e.g. `{ 1: 100, 2: 0, 3: 100 }`).
