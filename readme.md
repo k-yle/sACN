@@ -1,13 +1,13 @@
-# sACN receiver in node.js
+# sACN receiver & sender in node.js
 
 [![Build Status](https://github.com/k-yle/sACN/workflows/Build%20and%20Test/badge.svg)](https://github.com/k-yle/sACN/actions)
 [![Coverage Status](https://coveralls.io/repos/github/k-yle/sACN/badge.svg?branch=master)](https://coveralls.io/github/k-yle/sACN?branch=master)
 [![npm version](https://badge.fury.io/js/sacn.svg)](https://badge.fury.io/js/sacn)
 [![npm](https://img.shields.io/npm/dt/sacn.svg)](https://www.npmjs.com/package/sacn)
 
-💡 🎭 This module can receive [DMX](https://en.wikipedia.org/wiki/DMX512) data sent via [sACN](https://en.wikipedia.org/wiki/E1.31) from professional lighting consoles (e.g. [ETC](https://www.etcconnect.com/), [Onyx](https://obsidiancontrol.com/)).
+💡 This module can receive [DMX](https://en.wikipedia.org/wiki/DMX512) data sent via [sACN](https://en.wikipedia.org/wiki/E1.31) from professional lighting consoles (e.g. [ETC](https://www.etcconnect.com/), [Onyx](https://obsidiancontrol.com/)).
 
-> 🔦 Sending [RDM](<https://en.wikipedia.org/wiki/RDM_(lighting)>) data to fixtures is not implemented yet, see [issue #1](https://github.com/k-yle/sACN/issues/1).
+🎭 It can also send data to DMX fixtures that support sACN, e.g. LED lights, smoke machines, etc.
 
 ## Install
 
@@ -15,10 +15,12 @@
 npm install sacn
 ```
 
-## Usage
+## Usage - Receiver
+
+🔦 Sending [RDM](<https://en.wikipedia.org/wiki/RDM_(lighting)>) data to fixtures is not implemented yet, see [issue #1](https://github.com/k-yle/sACN/issues/1).
 
 ```js
-const { Receiver, objectify } = require('sacn');
+const { Receiver } = require('sacn');
 
 const sACN = new Receiver({
   universes: [1, 2],
@@ -26,7 +28,7 @@ const sACN = new Receiver({
 });
 
 sACN.on('packet', (packet) => {
-  console.log('got dmx data:', objectify(packet.slotsData));
+  console.log('got dmx data:', packet.payload);
   // see table 2 below for all packet properties
 });
 
@@ -50,15 +52,13 @@ sACN.addUniverse(3);
 // stop listening to a universe 1
 sACN.removeUniverse(1);
 
-// close all connections; terminate the server
+// close all connections; terminate the receiver
 sACN.close();
 
 sACN.universes; // is a list of the universes being listened to
 ```
 
-The `objectify` function is a helper that converts the Buffer (e.g. `Buffer<ff 00 ff>`) into a human-readable object (e.g. `{ 1: 100, 2: 0, 3: 100 }`).
-
-### Table 1 - Options
+### Table 1 - Options for Receiver
 
 | Name        | Type       | Purpose                                                                                                                                     | Default |
 | ----------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
@@ -76,12 +76,52 @@ The `objectify` function is a helper that converts the Buffer (e.g. `Buffer<ff 0
   "universe": 1, // DMX universe
   "sequence": 172, // packets are numbered 0-255 to keep them in order
   "priority": 100, // 0-200. used if multiple controllers send to the same universe
-  "slotsData": Buffer, // a buffer with length 512 containing the values of DMX channels 1-512
+  "payload": { // an object with the percentage values of DMX channels 1-512
+    1: 100,
+    2: 50,
+    3: 0
+  },
 
   /* there are more low-level properties which most
      users won't need, see the ./src/packet.ts file */
 }
 ```
+
+## Usage - Sender (beta)
+
+```js
+const { Sender } = require('sacn');
+
+const sACNServer = new Sender({
+  universe: 1,
+  // see table 3 below for all options
+});
+
+async function main() {
+  await sACNServer.send({
+    payload: { // required. object with the percentages for each DMX channel
+      1: 100,
+      2: 50,
+      3: 0,
+    }
+    sourceName: "My NodeJS app" // optional. LED lights will use this as the name of the source lighting console.
+    priority: 100, // optional. value between 0-200, in case there are other consoles broadcasting to the same universe
+  });
+
+  sACNServer.close(); // terminate the server when your app is about to exit.
+}
+
+main(); // wrapped in a main() function so that we can `await` the promise
+
+```
+
+### Table 3 - Options for sender
+
+| Name        | Type      | Purpose                                                                                       | Default |
+| ----------- | --------- | --------------------------------------------------------------------------------------------- | ------- |
+| `universe`  | `number`  | Required. The universes to listen to. Must be within 1-63999                                  | `[]`    |
+| `port`      | `number`  | Optional. The multicast port to use. All professional consoles broadcast to the default port. | `5568`  |
+| `reuseAddr` | `boolean` | Optional. Allow multiple programs on your computer to listen to the same sACN universe.       |
 
 # Contribute
 

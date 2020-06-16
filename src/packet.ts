@@ -3,121 +3,163 @@
  */
 
 import * as assert from 'assert';
+import { objectify, inRange, empty, bit } from './util';
+import {
+  RootVector,
+  ACN_PID,
+  FrameVector,
+  DmpVector,
+  DEFAULT_CID,
+} from './constants';
 
-/* eslint-disable lines-between-class-members, no-bitwise, no-control-regex */
+/* eslint-disable lines-between-class-members, no-bitwise, no-control-regex, camelcase */
 
-const ACN_PID = Buffer.from([
-  0x41,
-  0x53,
-  0x43,
-  0x2d,
-  0x45,
-  0x31,
-  0x2e,
-  0x31,
-  0x37,
-  0x00,
-  0x00,
-  0x00,
-]);
-
-enum RootVector {
-  DATA = 4,
-  EXTENDED = 8,
-}
-enum FrameVector {
-  DATA = 2,
-}
-enum DmpVector {
-  DATA = 2,
+export interface Options {
+  universe: Packet['universe'];
+  payload: Packet['payload'];
+  sequence: Packet['sequence'];
+  sourceName?: Packet['sourceName'];
+  priority?: Packet['priority'];
+  cid?: Packet['cid'];
 }
 
-/* eslint-disable camelcase */
-
-// enum ExtendedFrameVector { SYNC = 1, DISCOVERY = 2 }
-
+/**
+ * This constructs a sACN Packet, either from an
+ * existing `Buffer` or from `Options`.
+ */
 export class Packet {
   /* root layer */
-  private readonly root_vector: RootVector;
+  private readonly root_vector = RootVector.DATA;
   private readonly root_fl: number;
-  private readonly preambleSize: number;
-  private readonly postambleSize: number;
-  private readonly acnPid: Buffer;
-  readonly cid: Buffer; // unique id of the sender
+  private readonly preambleSize = 0x0010; // =16 (unit16 hence the redundant 00s)
+  private readonly postambleSize = 0;
+  private readonly acnPid = ACN_PID;
+  public readonly cid: Buffer; // unique id of the sender
 
   /* framing layer */
-  private readonly frame_vector: FrameVector;
+  private readonly frame_vector = FrameVector.DATA;
   private readonly frame_fl: number;
-  readonly options: number;
-  readonly sequence: number;
-  readonly sourceName: string;
-  readonly priority: number; // 0 to 200; default 100
-  readonly syncUniverse: number; // universe used for annoucing timesync
-  readonly universe: number;
+  public readonly options: number;
+  public readonly sequence: number;
+  public readonly sourceName: string;
+  public readonly priority: number; // 0 to 200; default 100
+  public readonly syncUniverse: number; // universe used for annoucing timesync
+  public readonly universe: number;
 
   /* DMP layer */
-  private readonly dmp_vector: DmpVector;
+  private readonly dmp_vector = DmpVector.DATA;
   private readonly dmp_fl: number;
-  private readonly type: number;
-  private readonly firstAddress: number;
-  private readonly addressIncrement: number;
-  readonly propertyValueCount: number;
-  private readonly startCode: number;
-  readonly slotsData: Buffer;
+  private readonly type = 0xa1; // = 61
+  private readonly firstAddress = 0;
+  private readonly addressIncrement = 1;
+  public readonly propertyValueCount: number;
+  private readonly startCode = 0;
+  public readonly payload: Record<number, number>;
 
   public constructor(
-    private readonly buffer: Buffer,
+    input: Buffer | Options,
     public readonly sourceAddress?: string,
   ) {
-    /* root layer */
-    this.root_vector = this.buffer.readUInt32BE(18);
-    this.root_fl = this.buffer.readUInt16BE(16);
-    this.acnPid = this.buffer.slice(4, 16);
-    this.preambleSize = this.buffer.readUInt16BE(0);
-    this.postambleSize = this.buffer.readUInt16BE(2);
-    this.cid = this.buffer.slice(22, 38);
+    if (!input) throw new Error('Buffer packet instantiated with no value');
+    if (input instanceof Buffer) {
+      const buf = input;
+      // If a buffer is supplied, ascertain that the packet implements ACN
+      // correctly, and that is it a data packet. Also asceratain that the
+      // UDP overhead is valid. Then fill up the class values.
 
-    /* frame layer */
-    this.frame_vector = this.buffer.readUInt32BE(40);
-    this.frame_fl = this.buffer.readUInt16BE(38);
-    this.options = this.buffer.readUInt8(112);
-    this.sequence = this.buffer.readUInt8(111);
-    this.sourceName = this.buffer
-      .toString('ascii', 44, 107)
-      .replace(/\x00/g, '');
-    this.priority = this.buffer.readUInt8(108);
-    this.syncUniverse = this.buffer.readUInt16BE(109);
-    this.universe = this.buffer.readUInt16BE(113);
+      /* root layer */
+      assert.strictEqual(buf.readUInt32BE(18), this.root_vector);
+      this.root_fl = buf.readUInt16BE(16);
+      assert.deepStrictEqual(buf.slice(4, 16), this.acnPid);
+      assert.strictEqual(buf.readUInt16BE(0), this.preambleSize);
+      assert.strictEqual(buf.readUInt16BE(2), this.postambleSize);
+      this.cid = buf.slice(22, 38);
 
-    /* DMP layer */
-    this.dmp_vector = this.buffer.readUInt8(117);
-    this.dmp_fl = this.buffer.readUInt16BE(115);
-    this.type = this.buffer.readUInt8(118);
-    this.firstAddress = this.buffer.readUInt16BE(119);
-    this.addressIncrement = this.buffer.readUInt16BE(121);
-    this.propertyValueCount = this.buffer.readUInt16BE(123);
-    this.startCode = this.buffer.readUInt8(125);
-    this.slotsData = this.buffer.slice(126);
+      /* frame layer */
+      assert.strictEqual(buf.readUInt32BE(40), this.frame_vector);
+      this.frame_fl = buf.readUInt16BE(38);
+      this.options = buf.readUInt8(112);
+      this.sequence = buf.readUInt8(111);
+      this.sourceName = buf.toString('ascii', 44, 107).replace(/\x00/g, '');
+      this.priority = buf.readUInt8(108);
+      this.syncUniverse = buf.readUInt16BE(109);
+      this.universe = buf.readUInt16BE(113);
 
-    this.validate();
+      /* DMP layer */
+      assert.strictEqual(buf.readUInt8(117), this.dmp_vector);
+      this.dmp_fl = buf.readUInt16BE(115);
+      assert.strictEqual(buf.readUInt8(118), this.type);
+      assert.strictEqual(buf.readUInt16BE(119), this.firstAddress);
+      assert.strictEqual(buf.readUInt16BE(121), this.addressIncrement);
+      this.propertyValueCount = buf.readUInt16BE(123);
+      assert.strictEqual(buf.readUInt8(125), this.startCode);
+      this.payload = objectify(buf.slice(126));
+    } else {
+      // if input is not a buffer
+      const options = input;
+
+      // set constants
+      this.preambleSize = 0x0010;
+      this.root_fl = 0x726e;
+      this.frame_fl = 0x7258;
+      this.dmp_fl = 0x720b;
+      this.syncUniverse = 0; // we as a sender don't implement this
+      this.options = 0; // TODO: can we just set to 0?
+
+      // set properties
+      this.payload = options.payload;
+      this.sourceName = options.sourceName || 'sACN nodejs';
+      this.priority = options.priority || 100;
+      this.sequence = options.sequence;
+      this.universe = options.universe;
+      this.cid = options.cid || DEFAULT_CID;
+
+      // set computed properties
+      this.propertyValueCount = 0x0201; // "Indicates 1+ the number of slots in packet"
+      // We set the highest possible value (1+512) so that channels with zero values are
+      // treated as deliberately 0 (cf. undefined)
+    }
   }
 
-  private validate(): void | never {
-    // ascertains that this packet implements ACN
-    assert.deepStrictEqual(this.acnPid, ACN_PID);
+  public get buffer(): Buffer {
+    const sourceNameBuf = Buffer.from(this.sourceName.padEnd(64, '\0'));
+    const n: number[] = [].concat(
+      /* root layer */
+      bit(16, this.preambleSize), // 0,1 = preable size
+      bit(16, this.postambleSize), // 2,3 = postamble size
+      [...this.acnPid],
+      bit(16, this.root_fl), // 16,17 = root fl
+      bit(32, this.root_vector), // 18,19,20,21 = Root_vector
+      [...this.cid], // 22-37 = cid
 
-    // ascertains that this packet is a DATA packet
-    assert.strictEqual(this.root_vector, RootVector.DATA);
-    assert.strictEqual(this.frame_vector, FrameVector.DATA);
-    assert.strictEqual(this.dmp_vector, DmpVector.DATA);
+      /* framing layer */
+      bit(16, this.frame_fl), // 38,39 = frame fl
+      bit(32, this.frame_vector), // 40,41,42,43 = frame vector
+      [...sourceNameBuf], // 44 - 107 = sourceName
+      bit(8, this.priority), // 108 = priority (8bit)
+      bit(16, this.syncUniverse), // 109,110 = syncUniverse
+      bit(8, this.sequence), // 111 = sequence
+      bit(8, this.options), // 112 = options
+      bit(16, this.universe), // 113,114 = universe
 
-    // constants within the UDP overhead
-    assert.strictEqual(this.type, 0xa1); // = 61
-    assert.strictEqual(this.firstAddress, 0);
-    assert.strictEqual(this.addressIncrement, 1);
-    assert.strictEqual(this.startCode, 0);
-    assert.strictEqual(this.preambleSize, 0x0010); // = 16
-    assert.strictEqual(this.postambleSize, 0);
+      /* DMP layer */
+      bit(16, this.dmp_fl), // 115,116 = dmp_fl
+      bit(8, this.dmp_vector), // 117 = dmp vector
+      bit(8, this.type), // 118 = type
+      bit(16, this.firstAddress), // 119,120 = first adddress
+      bit(16, this.addressIncrement), // 121,122 = addressIncrement
+      bit(16, this.propertyValueCount), // 123,124 = propertyValueCount
+      bit(8, this.startCode), // 125 = startCode
+      empty(512), // 126-638 = dmx channels 1-512
+    );
+
+    for (const ch in this.payload) {
+      if (+ch >= 1 && +ch <= 512) {
+        n[125 + +ch] = inRange(this.payload[ch] * 2.55);
+      }
+    }
+
+    return Buffer.from(n);
   }
 
   // TODO: For octet 112 (options): Bit 7 = Preview_Data / Bit 6 = Stream_Terminated / Bit 5 = Force_Synchronization
