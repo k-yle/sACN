@@ -102,8 +102,8 @@ export class Receiver extends EventEmitter {
     return this;
   }
 
-  public close(): this {
-    this.socket.close();
+  public close(callback?: () => any): this {
+    this.socket.close(callback);
     return this;
   }
 }
