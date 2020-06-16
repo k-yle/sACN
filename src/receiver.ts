@@ -47,6 +47,11 @@ export class Receiver extends EventEmitter {
     this.socket.on('message', (msg, rinfo) => {
       try {
         const packet = new Packet(msg, rinfo.address);
+
+        // somehow we received a packet for a universe we're not listening to
+        // silently drop this packet
+        if (!this.universes.includes(packet.universe)) return;
+
         if (
           this.lastSequence[packet.universe] &&
           Math.abs(this.lastSequence[packet.universe] - packet.sequence) > 20

@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Return payload as an object, not a buffer (**breaking**)
 - Round percentages to 2 decimals places when converting from hex (**potentially breaking**)
+- [#19]: Discard received packets sent to the wrong multicast address (**potentially breaking**)
 
 ## [0.7.0] - 2019-10-04
 
