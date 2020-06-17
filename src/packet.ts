@@ -54,7 +54,7 @@ export class Packet {
   private readonly addressIncrement = 1;
   public readonly propertyValueCount: number;
   private readonly startCode = 0;
-  private readonly _payload: Buffer | Record<number, number>;
+  private readonly privatePayload: Buffer | Record<number, number>;
 
   public constructor(
     input: Buffer | Options,
@@ -93,7 +93,7 @@ export class Packet {
       assert.strictEqual(buf.readUInt16BE(121), this.addressIncrement);
       this.propertyValueCount = buf.readUInt16BE(123);
       assert.strictEqual(buf.readUInt8(125), this.startCode);
-      this._payload = buf.slice(126);
+      this.privatePayload = buf.slice(126);
     } else {
       // if input is not a buffer
       const options = input;
@@ -107,7 +107,7 @@ export class Packet {
       this.options = 0; // TODO: can we just set to 0?
 
       // set properties
-      this._payload = options.payload;
+      this.privatePayload = options.payload;
       this.sourceName = options.sourceName || 'sACN nodejs';
       this.priority = options.priority || 100;
       this.sequence = options.sequence;
@@ -122,19 +122,21 @@ export class Packet {
   }
 
   public get payload(): Record<number, number> {
-    return this._payload instanceof Buffer ? objectify(this._payload) : this._payload;
+    return this.privatePayload instanceof Buffer
+      ? objectify(this.privatePayload)
+      : this.privatePayload;
   }
 
   public get payloadAsBuffer(): Buffer {
-    return this._payload instanceof Buffer ? this._payload : null;
+    return this.privatePayload instanceof Buffer ? this.privatePayload : null;
   }
 
   public get payloadAsRawArray(): Array<number> {
-    if(!(this._payload instanceof Buffer)) {
+    if (!(this.privatePayload instanceof Buffer)) {
       return null;
     }
-    let data = [];
-    this._payload.forEach((value, channel) => {
+    const data = [];
+    this.privatePayload.forEach((value, channel) => {
       data[channel] = value;
     });
     return data;
