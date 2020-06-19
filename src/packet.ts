@@ -131,17 +131,6 @@ export class Packet {
     return this.privatePayload instanceof Buffer ? this.privatePayload : null;
   }
 
-  public get payloadAsRawArray(): Array<number> {
-    if (!(this.privatePayload instanceof Buffer)) {
-      return null;
-    }
-    const data = [];
-    this.privatePayload.forEach((value, channel) => {
-      data[channel] = value;
-    });
-    return data;
-  }
-
   public get buffer(): Buffer {
     const sourceNameBuf = Buffer.from(this.sourceName.padEnd(64, '\0'));
     const n: number[] = [].concat(
