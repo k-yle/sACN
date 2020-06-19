@@ -54,7 +54,7 @@ export class Packet {
   private readonly addressIncrement = 1;
   public readonly propertyValueCount: number;
   private readonly startCode = 0;
-  public readonly payload: Record<number, number>;
+  private readonly privatePayload: Buffer | Record<number, number>;
 
   public constructor(
     input: Buffer | Options,
@@ -93,7 +93,7 @@ export class Packet {
       assert.strictEqual(buf.readUInt16BE(121), this.addressIncrement);
       this.propertyValueCount = buf.readUInt16BE(123);
       assert.strictEqual(buf.readUInt8(125), this.startCode);
-      this.payload = objectify(buf.slice(126));
+      this.privatePayload = buf.slice(126);
     } else {
       // if input is not a buffer
       const options = input;
@@ -107,7 +107,7 @@ export class Packet {
       this.options = 0; // TODO: can we just set to 0?
 
       // set properties
-      this.payload = options.payload;
+      this.privatePayload = options.payload;
       this.sourceName = options.sourceName || 'sACN nodejs';
       this.priority = options.priority || 100;
       this.sequence = options.sequence;
@@ -119,6 +119,16 @@ export class Packet {
       // We set the highest possible value (1+512) so that channels with zero values are
       // treated as deliberately 0 (cf. undefined)
     }
+  }
+
+  public get payload(): Record<number, number> {
+    return this.privatePayload instanceof Buffer
+      ? objectify(this.privatePayload)
+      : this.privatePayload;
+  }
+
+  public get payloadAsBuffer(): Buffer {
+    return this.privatePayload instanceof Buffer ? this.privatePayload : null;
   }
 
   public get buffer(): Buffer {
