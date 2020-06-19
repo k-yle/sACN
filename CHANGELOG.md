@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.2.0] - 2020-06-19
+
+### Added
+
+- [#25]: Return raw buffer if needed
+
+## [3.1.1] - 2020-06-17
+
+### Added
+
+- [#23]: Support passing a callback to `Receiver.close()`
+
 ## [3.1.0] - 2020-06-15
 
 ### Added

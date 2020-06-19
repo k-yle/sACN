@@ -15,6 +15,9 @@ describe('Simple Packet', () => {
     assert.equal(packet.priority, 100);
 
     assert.deepEqual(packet.payload, PAYLOAD);
+    const payloadAsArray = [...packet.payloadAsBuffer];
+    payloadAsArray.length = 6; // let's not check the entire thing
+    assert.deepEqual(payloadAsArray, [234, 255, 0, 255, 0, 0]);
   });
 
   it('Returns the same buffer as supplied', () => {
@@ -58,6 +61,7 @@ describe('Simple Packet', () => {
       ]),
     });
     assert.deepStrictEqual(packet.buffer, buff);
+    assert.deepEqual(packet.payloadAsBuffer, null); // not available when creating a packet from options
   });
 
   it('ignores invalid channels', () => {
