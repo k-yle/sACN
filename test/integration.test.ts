@@ -1,4 +1,4 @@
-import * as assert from 'assert';
+import assert from 'assert';
 import { Receiver, Sender, Packet } from '../src';
 
 const sleep = (ms: number) => new Promise((cb) => setTimeout(cb, ms));
@@ -23,15 +23,16 @@ describe('Receiver & Sender (integration test)', () => {
       await Tx2.send({ payload: { 512: 100 } });
       await sleep(3500);
 
-      assert.equal(received.length, 2);
-      assert.deepEqual(received[0].payload, { 1: 100 });
-      assert.deepEqual(received[1].payload, { 4: 25.1 });
+      assert.strictEqual(received.length, 2);
+      assert.deepStrictEqual(received[0]!.payload, { 1: 100 });
+      assert.deepStrictEqual(received[1]!.payload, { 4: 25.1 });
     } finally {
       Tx1.close();
       Tx2.close();
       Rx.close();
     }
   });
+
   it('throws a catchable error when an invalid interface is supplied', async () => {
     const sACN = new Receiver({
       universes: [1],
@@ -44,35 +45,36 @@ describe('Receiver & Sender (integration test)', () => {
       // stuff takes time
       await sleep(500);
 
-      assert.equal(errors.length, 1);
-      assert.equal(errors[0].message, 'addMembership EINVAL');
+      assert.strictEqual(errors.length, 1);
+      assert.strictEqual(errors[0]!.message, 'addMembership EINVAL');
     } finally {
       sACN.close();
     }
   });
+
   it('has working addUniverse and removeUniverse methods', async () => {
     const sACN = new Receiver({
       universes: [1, 2, 500],
     });
     try {
       await sleep(500);
-      assert.deepEqual(sACN.universes, [1, 2, 500]);
+      assert.deepStrictEqual(sACN.universes, [1, 2, 500]);
 
       sACN.addUniverse(4);
       await sleep(500);
-      assert.deepEqual(sACN.universes, [1, 2, 500, 4]);
+      assert.deepStrictEqual(sACN.universes, [1, 2, 500, 4]);
 
       sACN.addUniverse(4); // making sure there's no error re-adding something
       await sleep(500);
-      assert.deepEqual(sACN.universes, [1, 2, 500, 4]);
+      assert.deepStrictEqual(sACN.universes, [1, 2, 500, 4]);
 
       sACN.removeUniverse(500);
       await sleep(500);
-      assert.deepEqual(sACN.universes, [1, 2, 4]);
+      assert.deepStrictEqual(sACN.universes, [1, 2, 4]);
 
       sACN.removeUniverse(123); // making sure there's no error deleting something non-existant
       await sleep(500);
-      assert.deepEqual(sACN.universes, [1, 2, 4]);
+      assert.deepStrictEqual(sACN.universes, [1, 2, 4]);
     } finally {
       sACN.close();
     }

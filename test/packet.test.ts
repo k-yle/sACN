@@ -1,4 +1,4 @@
-import * as assert from 'assert';
+import assert from 'assert';
 import { Packet } from '../src/packet';
 import { buff } from './validBuffer';
 
@@ -7,17 +7,17 @@ const PAYLOAD = { 1: 91.76, 2: 100, 4: 100 };
 describe('Simple Packet', () => {
   it('Correctly sets metadata from a given buffer', () => {
     const packet = new Packet(buff, '10.0.225.7');
-    assert.equal(packet.universe, 1);
-    assert.equal(packet.sourceName, 'Onyx');
-    assert.equal(packet.sequence, 172);
+    assert.strictEqual(packet.universe, 1);
+    assert.strictEqual(packet.sourceName, 'Onyx');
+    assert.strictEqual(packet.sequence, 172);
 
-    assert.equal(packet.sourceAddress, '10.0.225.7');
-    assert.equal(packet.priority, 100);
+    assert.strictEqual(packet.sourceAddress, '10.0.225.7');
+    assert.strictEqual(packet.priority, 100);
 
-    assert.deepEqual(packet.payload, PAYLOAD);
-    const payloadAsArray = [...packet.payloadAsBuffer];
+    assert.deepStrictEqual(packet.payload, PAYLOAD);
+    const payloadAsArray = [...(<Buffer>packet.payloadAsBuffer)];
     payloadAsArray.length = 6; // let's not check the entire thing
-    assert.deepEqual(payloadAsArray, [234, 255, 0, 255, 0, 0]);
+    assert.deepStrictEqual(payloadAsArray, [234, 255, 0, 255, 0, 0]);
   });
 
   it('Returns the same buffer as supplied', () => {
@@ -27,8 +27,7 @@ describe('Simple Packet', () => {
 
   it('throws if instantiated with no value', () => {
     assert.throws(() => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error
+      // @ts-expect-error we're testing if it throws
       // eslint-disable-next-line no-new
       new Packet();
     });
@@ -61,7 +60,7 @@ describe('Simple Packet', () => {
       ]),
     });
     assert.deepStrictEqual(packet.buffer, buff);
-    assert.deepEqual(packet.payloadAsBuffer, null); // not available when creating a packet from options
+    assert.deepStrictEqual(packet.payloadAsBuffer, null); // not available when creating a packet from options
   });
 
   it('ignores invalid channels', () => {

@@ -3,8 +3,12 @@
     "outDir": "./dist",
     "module": "commonjs",
     "target": "es2015",
+    "strict": true,
+    "esModuleInterop": true,
     "moduleResolution": "node",
     "downlevelIteration": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
     "declaration": true
   },
   "exclude": ["node_modules"],

@@ -2,7 +2,7 @@
  * this is the low-level implementation of the E1.31 (sACN) protocol
  */
 
-import * as assert from 'assert';
+import assert from 'assert';
 import { objectify, inRange, empty, bit } from './util';
 import {
   RootVector,
@@ -11,8 +11,6 @@ import {
   DmpVector,
   DEFAULT_CID,
 } from './constants';
-
-/* eslint-disable lines-between-class-members, no-bitwise, no-control-regex, camelcase */
 
 export interface Options {
   universe: Packet['universe'];
@@ -28,6 +26,8 @@ export interface Options {
  * existing `Buffer` or from `Options`.
  */
 export class Packet {
+  /* eslint-disable lines-between-class-members, camelcase */
+
   /* root layer */
   private readonly root_vector = RootVector.DATA;
   private readonly root_fl: number;
@@ -56,6 +56,8 @@ export class Packet {
   private readonly startCode = 0;
   private readonly privatePayload: Buffer | Record<number, number>;
 
+  /* eslint-enable lines-between-class-members, camelcase */
+
   public constructor(
     input: Buffer | Options,
     public readonly sourceAddress?: string,
@@ -80,6 +82,7 @@ export class Packet {
       this.frame_fl = buf.readUInt16BE(38);
       this.options = buf.readUInt8(112);
       this.sequence = buf.readUInt8(111);
+      // eslint-disable-next-line no-control-regex
       this.sourceName = buf.toString('ascii', 44, 107).replace(/\x00/g, '');
       this.priority = buf.readUInt8(108);
       this.syncUniverse = buf.readUInt16BE(109);
@@ -127,13 +130,13 @@ export class Packet {
       : this.privatePayload;
   }
 
-  public get payloadAsBuffer(): Buffer {
+  public get payloadAsBuffer(): Buffer | null {
     return this.privatePayload instanceof Buffer ? this.privatePayload : null;
   }
 
   public get buffer(): Buffer {
     const sourceNameBuf = Buffer.from(this.sourceName.padEnd(64, '\0'));
-    const n: number[] = [].concat(
+    const n = (<number[]>[]).concat(
       /* root layer */
       bit(16, this.preambleSize), // 0,1 = preable size
       bit(16, this.postambleSize), // 2,3 = postamble size
@@ -165,7 +168,7 @@ export class Packet {
 
     for (const ch in this.payload) {
       if (+ch >= 1 && +ch <= 512) {
-        n[125 + +ch] = inRange(this.payload[ch] * 2.55);
+        n[125 + +ch] = inRange(this.payload[ch]! * 2.55);
       }
     }
 

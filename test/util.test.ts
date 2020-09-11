@@ -1,5 +1,5 @@
 /* global describe, it */
-import * as assert from 'assert';
+import assert from 'assert';
 
 import {
   objectify,
@@ -18,6 +18,7 @@ describe('objectify', () => {
       3: 100,
     });
   });
+
   it('should produce unrounded percentages for buf2', () => {
     const obj = objectify(
       Buffer.from(
@@ -96,7 +97,7 @@ describe('empty', () => {
 });
 
 describe('dp', () => {
-  it('roudns to the correct amount of decimal places', () => {
+  it('rounds to the correct amount of decimal places', () => {
     assert.deepStrictEqual(dp(12.3459, 3), 12.346);
     assert.deepStrictEqual(dp(12.3411), 12.34);
   });

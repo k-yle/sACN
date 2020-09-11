@@ -1,6 +1,5 @@
 export function multicastGroup(universe: number): string {
   if ((universe > 0 && universe <= 63999) || universe === 64214) {
-    // eslint-disable-next-line no-bitwise
     return `239.255.${universe >> 8}.${universe & 255}`;
   }
   throw new RangeError('universe must be between 1-63999');
@@ -10,7 +9,7 @@ export const dp = (n: number, decimals = 2): number =>
   Math.round(n * 10 ** decimals) / 10 ** decimals;
 
 export function objectify(buf: Buffer): Record<number, number> {
-  const data = {};
+  const data: Record<number, number> = {};
   buf.forEach((val, ch) => {
     if (val > 0) data[ch + 1] = dp(val / 2.55, 2); // rounding to 2dp will not lose any data
   });
@@ -27,7 +26,7 @@ export function bit(bitt: 8 | 16 | 32, num: number): number[] {
 
   // this mutates `arr`
   const view = new DataView(arr);
-  view[`setUint${bitt}`](0, num, false); // ByteOffset = 0; litteEndian = false
+  view[<const>`setUint${bitt}`](0, num, false); // ByteOffset = 0; litteEndian = false
 
   return Array.from(new Uint8Array(arr));
 }
