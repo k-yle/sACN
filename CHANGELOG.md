@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.0.0] - 2021-03-31
+
+### Changed
+
+- [#29]: Updated dev dependencies and enabled strictNullChecks in typescript.
+- [#29]: 💥 BREAKING TYPEDEF CHANGE: correctly documented the return type of `payloadAsBuffer` as `Buffer | null`, instead of `Buffer`.
+
 ## [3.2.1] - 2020-07-19
 
 ### Changed

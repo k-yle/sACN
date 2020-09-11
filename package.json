@@ -1,6 +1,6 @@
 {
   "name": "sacn",
-  "version": "3.2.1",
+  "version": "4.0.0",
   "description": "💡 🎭 Send and Receive sACN data (DMX over IP)",
   "author": "Kyle Hensel",
   "license": "Apache-2.0",
@@ -37,18 +37,22 @@
     "dmxking"
   ],
   "devDependencies": {
-    "@types/mocha": "^8.0.3",
-    "@types/node": "^14.10.0",
+    "@types/mocha": "^8.2.2",
+    "@types/node": "^14.14.37",
     "coveralls": "^3.1.0",
-    "eslint": "^7.8.1",
-    "eslint-config-kyle": "^1.0.80",
-    "mocha": "^8.1.3",
+    "eslint": "^7.23.0",
+    "eslint-config-kyle": "^2.20.0",
+    "mocha": "^8.3.2",
     "nyc": "^15.1.0",
-    "ts-node": "^9.0.0",
-    "typescript": "^4.0.2"
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.3"
   },
   "eslintConfig": {
-    "extends": "kyle"
+    "extends": "kyle",
+    "rules": {
+      "no-bitwise": 0,
+      "@typescript-eslint/no-non-null-assertion": 0
+    }
   },
   "nyc": {
     "extension": [

@@ -26,7 +26,7 @@ export class Receiver extends EventEmitter {
 
   private readonly port: Props['port'];
 
-  public universes: Props['universes'];
+  public universes: NonNullable<Props['universes']>;
 
   private readonly iface: Props['iface'];
 
@@ -54,7 +54,7 @@ export class Receiver extends EventEmitter {
 
         if (
           this.lastSequence[packet.universe] &&
-          Math.abs(this.lastSequence[packet.universe] - packet.sequence) > 20
+          Math.abs(this.lastSequence[packet.universe]! - packet.sequence) > 20
         ) {
           throw new Error(
             `Packet significantly out of order in universe ${
