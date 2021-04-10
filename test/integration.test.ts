@@ -33,6 +33,35 @@ describe('Receiver & Sender (integration test)', () => {
     }
   });
 
+  it('re-sends the packet data if minRefreshRate is supplied', async () => {
+    const Tx = new Sender({ universe: 1, minRefreshRate: 1 });
+    const Rx = new Receiver({ universes: [1] });
+    try {
+      const received: Packet[] = [];
+      Rx.on('packet', (packet) => received.push(packet));
+
+      // stuff takes time
+      await sleep(3500);
+      await Tx.send({ payload: { 1: 100 } });
+      await sleep(3500);
+
+      assert.strictEqual(received.length, 4); // send at 0s, 1s, 2s, 3s. Then at 3.5s we stop
+      assert.deepStrictEqual(received[0]!.payload, { 1: 100 });
+      assert.deepStrictEqual(received[1]!.payload, { 1: 100 });
+      assert.deepStrictEqual(received[2]!.payload, { 1: 100 });
+      assert.deepStrictEqual(received[3]!.payload, { 1: 100 });
+
+      // ensure it sends a different packet each time - the sequence is incremented
+      assert.deepStrictEqual(received[0]!.sequence, 0);
+      assert.deepStrictEqual(received[1]!.sequence, 1);
+      assert.deepStrictEqual(received[2]!.sequence, 2);
+      assert.deepStrictEqual(received[3]!.sequence, 3);
+    } finally {
+      Tx.close();
+      Rx.close();
+    }
+  });
+
   it('throws a catchable error when an invalid interface is supplied', async () => {
     const sACN = new Receiver({
       universes: [1],

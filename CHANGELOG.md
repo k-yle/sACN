@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.1.0] - 2021-04-10
+
+### Added
+
+- [#31]: The sender can now re-send data for sACN receivers that require this
+
 ## [4.0.0] - 2021-03-31
 
 ### Changed
