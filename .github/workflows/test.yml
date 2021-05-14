@@ -31,7 +31,7 @@ jobs:
           github-token: ${{ secrets.github_token }}
 
       - name: npm publish
-        if: ${{ github.ref == 'refs/heads/master' }}
+        if: ${{ github.ref == 'refs/heads/main' }}
         run: |
           npm config set //registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN
           npm run trypublish
