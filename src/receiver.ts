@@ -52,18 +52,22 @@ export class Receiver extends EventEmitter {
         // silently drop this packet
         if (!this.universes.includes(packet.universe)) return;
 
-        if (
-          this.lastSequence[packet.universe] &&
-          Math.abs(this.lastSequence[packet.universe]! - packet.sequence) > 20
-        ) {
+        // we keep track of the last sequence per sender and per universe (see #37)
+        const key = packet.cid.toString('utf8') + packet.universe;
+
+        const outOfOrder =
+          this.lastSequence[key] &&
+          Math.abs(this.lastSequence[key]! - packet.sequence) > 20;
+
+        const oldSequence = this.lastSequence[key];
+        this.lastSequence[key] = packet.sequence === 255 ? -1 : packet.sequence;
+
+        if (outOfOrder) {
           throw new Error(
-            `Packet significantly out of order in universe ${
-              packet.universe
-            } (${this.lastSequence[packet.universe]} -> ${packet.sequence})`,
+            `Packet significantly out of order in universe ${packet.universe} from ${packet.sourceName} (${oldSequence} -> ${packet.sequence})`,
           );
         }
-        this.lastSequence[packet.universe] =
-          packet.sequence === 255 ? -1 : packet.sequence;
+
         this.emit('packet', packet);
       } catch (err) {
         const event =
