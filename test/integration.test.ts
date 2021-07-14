@@ -108,4 +108,130 @@ describe('Receiver & Sender (integration test)', () => {
       sACN.close();
     }
   });
+
+  it('does not throw PacketOutOfOrder errors when two senders are broadcasting onto the same universe', async () => {
+    const Tx1 = new Sender({
+      universe: 14,
+      defaultPacketOptions: {
+        cid: Buffer.from([0x01, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+        sourceName: 'grandMA3',
+      },
+    });
+    const Tx2 = new Sender({
+      universe: 14,
+      defaultPacketOptions: {
+        cid: Buffer.from([0x02, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+        sourceName: 'RoadHog4',
+      },
+    });
+    const Rx = new Receiver({ universes: [14] });
+
+    try {
+      const received: Packet[] = [];
+      const errors: Error[] = [];
+      Rx.on('packet', (packet) => received.push(packet));
+      Rx.on('error', (error) => errors.push(error));
+      Rx.on('PacketOutOfOrder', (error) => errors.push(error));
+      Rx.on('PacketOutOfOrder', (error) => errors.push(error));
+
+      await Tx1.send({ payload: { 1: 100 } }); // 0
+      await Tx1.send({ payload: { 1: 0 } }); // 1
+      await Tx1.send({ payload: { 1: 100 } }); // 2
+
+      await Tx2.send({ payload: { 1: 99 } }); // 0
+      await Tx2.send({ payload: { 1: 98 } }); // 1
+      await Tx2.send({ payload: { 1: 97 } }); // 2
+
+      await Tx1.send({ payload: { 1: 50 } }); // 3
+      await Tx2.send({ payload: { 1: 96 } }); // 3
+
+      // stuff takes time
+      await sleep(3500);
+
+      // ensure the sequence is incremented per-sender, and that the order matches the order above
+      assert.deepStrictEqual(
+        received.map((r) => `${r.sourceName} - #${r.sequence}`),
+        [
+          'grandMA3 - #0',
+          'grandMA3 - #1',
+          'grandMA3 - #2',
+          'RoadHog4 - #0',
+          'RoadHog4 - #1',
+          'RoadHog4 - #2',
+          'grandMA3 - #3',
+          'RoadHog4 - #3',
+        ],
+      );
+
+      // ensure no errors were thrown
+      assert.deepStrictEqual(errors, []);
+    } finally {
+      Tx1.close();
+      Tx2.close();
+      Rx.close();
+    }
+  });
+
+  it('throws a PacketOutOfOrder errors when there is genuinely an issue', async () => {
+    // these two senders have a same CID and sourceName, which will cause a genuine PacketOutOfOrder
+    // error on the receiver's side.
+    const Tx1 = new Sender({
+      universe: 5,
+      defaultPacketOptions: {
+        cid: Buffer.from([0x01, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+        sourceName: 'Full Boar 4',
+      },
+    });
+    const Tx2 = new Sender({
+      universe: 5,
+      defaultPacketOptions: {
+        cid: Buffer.from([0x01, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+        sourceName: 'Full Boar 4',
+      },
+    });
+    const Rx = new Receiver({ universes: [5] });
+
+    try {
+      const received: Packet[] = [];
+      const errors: Error[] = [];
+
+      Rx.on('packet', (packet) => received.push(packet));
+      Rx.on('error', (error) => errors.push(error));
+      Rx.on('PacketOutOfOrder', (error) => errors.push(error));
+      Rx.on('PacketOutOfOrder', (error) => errors.push(error));
+
+      // send 25 packets from Tx1
+      for (let i = 0; i < 25; i += 1) {
+        await Tx1.send({ payload: { 1: i } });
+      }
+      // then send 5 packets from Tx2
+      for (let i = 0; i < 5; i += 1) {
+        await Tx2.send({ payload: { 1: i } });
+      }
+
+      // stuff takes time
+      await sleep(3500);
+
+      // confirm that 29 packets were recevied successfully, and that only the first
+      // packet from Tx2 was dropped when it switched over to the new numbering system.
+      assert.deepStrictEqual(
+        received.map((r) => r.sequence),
+        [
+          0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+          20, 21, 22, 23, 24, 1, 2, 3, 4,
+        ],
+      );
+
+      // at least one error is thrown
+      assert.strictEqual(errors.length >= 1, true);
+      assert.strictEqual(
+        errors[0]!.message,
+        'Packet significantly out of order in universe 5 from Full Boar 4 (24 -> 0)',
+      );
+    } finally {
+      Tx1.close();
+      Tx2.close();
+      Rx.close();
+    }
+  });
 });

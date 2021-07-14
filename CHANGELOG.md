@@ -7,9 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.2.0] - 2022-03-18
+
 ### Added
 
 - Added `defaultPacketOptions` to the sender options
+
+### Changed
+
+- [#38]: Emit fewer PacketOutOfOrder errors
 
 ## [4.1.0] - 2021-04-10
 
