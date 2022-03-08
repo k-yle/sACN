@@ -26,7 +26,7 @@ export interface Options {
  * existing `Buffer` or from `Options`.
  */
 export class Packet {
-  /* eslint-disable lines-between-class-members, camelcase */
+  /* eslint-disable lines-between-class-members */
 
   /* root layer */
   private readonly root_vector = RootVector.DATA;
@@ -56,7 +56,7 @@ export class Packet {
   private readonly startCode = 0;
   private readonly privatePayload: Buffer | Record<number, number>;
 
-  /* eslint-enable lines-between-class-members, camelcase */
+  /* eslint-enable lines-between-class-members */
 
   public constructor(
     input: Buffer | Options,
