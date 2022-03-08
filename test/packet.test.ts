@@ -41,22 +41,7 @@ describe('Simple Packet', () => {
       priority: 100,
       payload: PAYLOAD,
       cid: Buffer.from([
-        168,
-        19,
-        166,
-        93,
-        17,
-        41,
-        81,
-        64,
-        185,
-        113,
-        133,
-        166,
-        110,
-        170,
-        141,
-        79,
+        168, 19, 166, 93, 17, 41, 81, 64, 185, 113, 133, 166, 110, 170, 141, 79,
       ]),
     });
     assert.deepStrictEqual(packet.buffer, buff);
