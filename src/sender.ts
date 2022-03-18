@@ -14,6 +14,9 @@ interface Props {
    * To re-send data 5 times per second (`5Hz`), set `refreshRate: 5`. This is equivilant to `200ms`.
    */
   minRefreshRate?: number;
+
+  /** some options can be sepecified when you instantiate the sender, instead of sepecifying them on every packet */
+  defaultPacketOptions?: Pick<Options, 'cid' | 'sourceName' | 'priority'>;
 }
 
 export class Sender {
@@ -24,6 +27,8 @@ export class Sender {
   public readonly universe: Props['universe'];
 
   private readonly multicastDest: string;
+
+  private readonly defaultPacketOptions: Props['defaultPacketOptions'];
 
   private sequence = 0;
 
@@ -41,10 +46,12 @@ export class Sender {
     port = 5568,
     reuseAddr = false,
     minRefreshRate = 0,
+    defaultPacketOptions,
   }: Props) {
     this.port = port;
     this.universe = universe;
     this.multicastDest = multicastGroup(universe);
+    this.defaultPacketOptions = defaultPacketOptions;
 
     this.socket = createSocket({ type: 'udp4', reuseAddr });
 
@@ -54,10 +61,11 @@ export class Sender {
   }
 
   public send(packet: Omit<Options, 'sequence' | 'universe'>): Promise<void> {
-    this.#latestPacketOptions = packet;
+    const finalPacket = { ...this.defaultPacketOptions, ...packet };
+    this.#latestPacketOptions = finalPacket;
     return new Promise((resolve, reject) => {
       const { buffer } = new Packet({
-        ...packet,
+        ...finalPacket,
         universe: this.universe,
         sequence: this.sequence,
       });

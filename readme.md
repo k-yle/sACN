@@ -38,7 +38,7 @@ sACN.on('PacketCorruption', (err) => {
 });
 
 sACN.on('PacketOutOfOrder', (err) => {
-  // trigged if a packet is recieved out of order
+  // trigged if a packet is received out of order
 });
 
 /* advanced usage below */
@@ -118,11 +118,12 @@ main(); // wrapped in a main() function so that we can `await` the promise
 
 ### Table 3 - Options for sender
 
-| Name        | Type      | Purpose                                                                                       | Default |
-| ----------- | --------- | --------------------------------------------------------------------------------------------- | ------- |
-| `universe`  | `number`  | Required. The universes to listen to. Must be within 1-63999                                  | `[]`    |
-| `port`      | `number`  | Optional. The multicast port to use. All professional consoles broadcast to the default port. | `5568`  |
-| `reuseAddr` | `boolean` | Optional. Allow multiple programs on your computer to listen to the same sACN universe.       |
+| Name                   | Type      | Purpose                                                                                                    | Default |
+| ---------------------- | --------- | ---------------------------------------------------------------------------------------------------------- | ------- |
+| `universe`             | `number`  | Required. The universes to listen to. Must be within 1-63999                                               | `[]`    |
+| `port`                 | `number`  | Optional. The multicast port to use. All professional consoles broadcast to the default port.              | `5568`  |
+| `reuseAddr`            | `boolean` | Optional. Allow multiple programs on your computer to listen to the same sACN universe.                    |
+| `defaultPacketOptions` | `object`  | Optional. You can specify options like `sourceName`, `cid`, and `priority` here instead of on every packet |
 
 # Contribute
 
