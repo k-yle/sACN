@@ -31,6 +31,7 @@ export class ReceiverMerge extends Receiver {
     mergePacket(packet: Packet) {
         // used to identify each source (cid & universe)
         let pid: string = packet.cid.toString() + "#" + packet.universe.toString();
+        if (!this.senders.has(pid)) this.emit('senderConnect', packet);
         this.senders.set(
             pid,
             new SendersData(
