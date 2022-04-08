@@ -88,7 +88,7 @@ sACN.universes; // is a list of the universes being listened to
 }
 ```
 
-## Usage - Sender (beta)
+## Usage - Sender
 
 ```js
 const { Sender } = require('sacn');

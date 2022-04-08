@@ -3,7 +3,7 @@
  */
 
 import assert from 'assert';
-import { objectify, inRange, empty, bit } from './util';
+import { objectify, inRange, empty, bit, Payload } from './util';
 import {
   RootVector,
   ACN_PID,
@@ -54,7 +54,7 @@ export class Packet {
   private readonly addressIncrement = 1;
   public readonly propertyValueCount: number;
   private readonly startCode = 0;
-  private readonly privatePayload: Buffer | Record<number, number>;
+  private readonly privatePayload: Buffer | Payload;
 
   /* eslint-enable lines-between-class-members */
 
@@ -124,7 +124,7 @@ export class Packet {
     }
   }
 
-  public get payload(): Record<number, number> {
+  public get payload(): Payload {
     return this.privatePayload instanceof Buffer
       ? objectify(this.privatePayload)
       : this.privatePayload;
