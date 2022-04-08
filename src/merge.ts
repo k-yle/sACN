@@ -9,19 +9,8 @@ interface MergeProps {
 }
 
 export class ReceiverMerge extends Receiver {
-    constructor({
-        universes = [1],
-        port = 5568,
-        iface = undefined,
-        reuseAddr = false,
-        timeout = 5000,
-    }: MergeProps) {
-        super({
-            universes,
-            port,
-            iface,
-            reuseAddr
-        });
+    constructor({ timeout = 5000, ...props }: MergeProps) {
+        super(props);
         this.timeout = timeout;
         super.on("packet", this.mergePacket);
     }
