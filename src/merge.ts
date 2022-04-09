@@ -30,7 +30,10 @@ export class ReceiverMerge extends Receiver {
                 packet.sequence
             ));
         setTimeout(() => {
-            if (this.senders.get(pid)?.seq == packet.sequence) this.senders.delete(pid);
+            if (this.senders.get(pid)?.seq == packet.sequence) {
+                this.senders.delete(pid);
+                this.emit('senderDisonnect', packet.cid);
+            };
         }, this.timeout);
 
         // detect which source has the highest per-universe priority
