@@ -50,8 +50,9 @@ export class ReceiverMerge extends Receiver {
             if (data.prio == maximumPrio) {
                 let i = 0;
                 while (i < 512) {
-                    let newValue = data.data.data[i];
-                    if (mergedData.data[i] < newValue) mergedData.data[i] = newValue;
+                    let newValue = data.data.data[i] || 0;
+                    //if(mergedData is not defined) do nothing
+                    if (mergedData.data[i] || Infinity < newValue) mergedData.data[i] = newValue;
                     i++;
                 }
             }
@@ -69,7 +70,7 @@ export class ReceiverMerge extends Receiver {
                     oldValue: this.lastData.data[i]
                 })
             }
-            this.lastData.data[i] = mergedData.data[i]
+            this.lastData.data[i] = mergedData.data[i] || 0;
             i++;
         }
     }
@@ -89,7 +90,7 @@ export class sACNData {
     constructor(recordData: Record<number, number> = {}) {
         this.data.fill(0);
         for (let addr in recordData) {
-            this.data[+addr - 1] = recordData[+addr];
+            this.data[+addr - 1] = recordData[+addr] || 0;
         }
     }
 }
