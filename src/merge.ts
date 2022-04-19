@@ -7,6 +7,7 @@ interface MergeProps {
     reuseAddr?: boolean;
     timeout?: number;
 }
+type Sid = [string, number]
 
 export class ReceiverMerge extends Receiver {
     constructor({ timeout = 5000, ...props }: MergeProps) {
@@ -15,18 +16,18 @@ export class ReceiverMerge extends Receiver {
         super.on("packet", this.mergePacket);
     }
     readonly timeout: number;
-    protected senders = new Map<string, SendersData>();
+    protected senders = new Map<Sid, SendersData>();
     protected lastData = new sACNData();
     mergePacket(packet: Packet) {
         // used to identify each source (cid & universe)
-        let pid: string = packet.cid.toString() + "#" + packet.universe.toString();
-        if (!this.senders.has(pid)) this.emit('senderConnect', {
+        let sid: Sid = [packet.cid.toString(), packet.universe];
+        if (!this.senders.has(sid)) this.emit('senderConnect', {
             cid: packet.cid,
             universe: packet.universe,
             firstPacket: packet
         });
         this.senders.set(
-            pid,
+            sid,
             {
                 cid: packet.cid.toString(),
                 data: new sACNData(packet.payload),
@@ -34,8 +35,8 @@ export class ReceiverMerge extends Receiver {
                 seq: packet.sequence
             });
         setTimeout(() => {
-            if (this.senders.get(pid)?.seq == packet.sequence) {
-                this.senders.delete(pid);
+            if (this.senders.get(sid)?.seq == packet.sequence) {
+                this.senders.delete(sid);
                 // `packet` is the last packet the source sent
                 this.emit('senderDisonnect', {
                     cid: packet.cid,
@@ -82,6 +83,9 @@ export class ReceiverMerge extends Receiver {
             this.lastData.data[i] = mergedData.data[i] || 0;
             i++;
         }
+    }
+    getSenders() {
+        return [...this.senders.keys()].map(([cid, universe]) => ({ cid, universe }));
     }
 }
 interface SendersData {
