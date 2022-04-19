@@ -20,19 +20,28 @@ export class ReceiverMerge extends Receiver {
     mergePacket(packet: Packet) {
         // used to identify each source (cid & universe)
         let pid: string = packet.cid.toString() + "#" + packet.universe.toString();
-        if (!this.senders.has(pid)) this.emit('senderConnect', packet);
+        if (!this.senders.has(pid)) this.emit('senderConnect', {
+            cid: packet.cid,
+            universe: packet.universe,
+            firstPacket: packet
+        });
         this.senders.set(
             pid,
-            new SendersData(
-                packet.cid.toString(),
-                new sACNData(packet.payload),
-                packet.priority,
-                packet.sequence
-            ));
+            {
+                cid: packet.cid.toString(),
+                data: new sACNData(packet.payload),
+                prio: packet.priority,
+                seq: packet.sequence
+            });
         setTimeout(() => {
             if (this.senders.get(pid)?.seq == packet.sequence) {
                 this.senders.delete(pid);
-                this.emit('senderDisonnect', packet.cid);
+                // `packet` is the last packet the source sent
+                this.emit('senderDisonnect', {
+                    cid: packet.cid,
+                    universe: packet.universe,
+                    lastPacket: packet
+                });
             };
         }, this.timeout);
 
@@ -75,15 +84,11 @@ export class ReceiverMerge extends Receiver {
         }
     }
 }
-class SendersData {
-    constructor(
-        readonly cid: string,
-        readonly data: sACNData,
-        readonly prio: number,
-        readonly seq: number
-    ) {
-
-    }
+interface SendersData {
+    readonly cid: string,
+    readonly data: sACNData,
+    readonly prio: number,
+    readonly seq: number
 }
 export class sACNData {
     data: number[] = new Array(512);
