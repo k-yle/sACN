@@ -5,7 +5,7 @@ import { AssertionError } from 'assert';
 import { Packet } from './packet';
 import { multicastGroup } from './util';
 
-interface Props {
+export interface ReceiverProps {
   universes?: number[];
   port?: number;
   iface?: string; // local ip address of network inteface to use
@@ -24,18 +24,18 @@ export class Receiver extends EventEmitter {
 
   private lastSequence: Record<string, number>;
 
-  private readonly port: Props['port'];
+  private readonly port: ReceiverProps['port'];
 
-  public universes: NonNullable<Props['universes']>;
+  public universes: NonNullable<ReceiverProps['universes']>;
 
-  private readonly iface: Props['iface'];
+  private readonly iface: ReceiverProps['iface'];
 
   constructor({
     universes = [1],
     port = 5568,
     iface = undefined,
     reuseAddr = false,
-  }: Props) {
+  }: ReceiverProps) {
     super();
     this.universes = universes;
     this.port = port;
