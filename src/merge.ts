@@ -9,37 +9,75 @@ interface MergeProps {
     timeout?: number;
 }
 
+interface Universe {
+    lastData: sACNData,
+    servers: Map<string, SendersData>
+}
+
+interface SendersData {
+    readonly cid: string,
+    readonly data: sACNData,
+    readonly prio: number,
+    readonly seq: number,
+    readonly universe: number,
+    readonly lastTimestamp: number,
+}
+
 export class ReceiverMerge extends Receiver {
     constructor({ timeout = 5000, ...props }: MergeProps) {
         super(props);
         this.timeout = timeout;
         super.on("packet", this.mergePacket);
     }
+
     readonly timeout: number;
-    protected senders = new Map<string, SendersData>();
-    protected lastData = new sACNData();
+
+    protected data = new Map<string, Universe>();
+
     mergePacket(packet: Packet) {
-        // used to identify each source (cid & universe)
-        let sid = packet.universe.toString(36) + "     " + packet.cid.toString();
-        // console.log(sid);
-        if (!this.senders.has(sid)) this.emit('senderConnect', {
-            cid: packet.cid,
-            universe: packet.universe,
-            firstPacket: packet
-        });
-        this.senders.set(
-            sid,
+        const universe = packet.universe.toString(36);
+        const cid = packet.cid.toString();
+
+        if (!this.data.has(universe)) {
+            this.data.set(universe, {
+                lastData: new sACNData(),
+                servers: new Map(),
+            });
+            this.emit('newUniverse', {
+                universe: packet.universe,
+                firstPacket: packet,
+            });
+        }
+
+        const universeData: Universe = this.data.get(universe) as Universe;
+
+        if (!universeData)
+            throw new Error("[sACN] Internal Error: universeData is undefined")
+
+        if (!universeData.servers.has(cid)) {
+            this.emit('senderConnect', {
+                cid: packet.cid,
+                universe: packet.universe,
+                firstPacket: packet,
+            });
+        }
+
+        const ts = performance.now();
+
+        universeData.servers.set(cid,
             {
                 cid: packet.cid.toString(),
                 data: new sACNData(packet.payload),
                 prio: packet.priority,
                 seq: packet.sequence,
                 universe: packet.universe,
-            });
+                lastTimestamp: ts,
+            }
+        );
+
         setTimeout(() => {
-            if (this.senders.get(sid)?.seq == packet.sequence) {
-                this.senders.delete(sid);
-                // `packet` is the last packet the source sent
+            if (universeData.servers.get(cid)?.lastTimestamp == ts) {
+                universeData.servers.delete(cid)
                 this.emit('senderDisconnect', {
                     cid: packet.cid,
                     universe: packet.universe,
@@ -50,7 +88,7 @@ export class ReceiverMerge extends Receiver {
 
         // detect which source has the highest per-universe priority
         let maximumPrio = 0;
-        for (let [_, data] of this.senders) {
+        for (let [_, data] of universeData.servers) {
             if (data.prio > maximumPrio && data.universe == packet.universe) {
                 maximumPrio = data.prio;
             }
@@ -58,7 +96,7 @@ export class ReceiverMerge extends Receiver {
 
         // HTP
         let mergedData = new sACNData();
-        for (let [_, data] of this.senders) {
+        for (let [_, data] of universeData.servers) {
             if (data.prio == maximumPrio && data.universe == packet.universe) {
                 let i = 0;
                 while (i < 512) {
@@ -69,29 +107,27 @@ export class ReceiverMerge extends Receiver {
             }
         }
 
-        // console.log(mergedData);
         // only changes
         let i = 0;
         while (i < 512) {
-            if (this.lastData.data[i] != mergedData.data[i]) {
+            if (universeData.lastData.data[i] != mergedData.data[i]) {
                 super.emit("changed", {
                     universe: packet.universe,
                     addr: i + 1,
                     newValue: mergedData.data[i],
-                    oldValue: this.lastData.data[i]
+                    oldValue: universeData.lastData.data[i]
                 })
             }
-            this.lastData.data[i] = mergedData.data[i] || 0;
+            universeData.lastData.data[i] = mergedData.data[i] || 0;
             i++;
         }
         super.emit("changesDone");
     }
     clearCache() {
         // causes every addr value to be emitted
-        this.lastData = new sACNData();
-    }
-    getSenders() {
-        return [...this.senders.keys()].map(([cid, universe]) => ({ cid, universe }));
+        for (let [, univese] of this.data) {
+            univese.lastData = new sACNData();
+        }
     }
 }
 export declare interface ReceiverMerge {
@@ -118,13 +154,6 @@ export declare interface ReceiverMerge {
     on(event: 'PacketCorruption', listener: (err: AssertionError) => void): this;
     on(event: 'PacketOutOfOrder', listener: (err: Error) => void): this;
     on(event: 'error', listener: (err: Error) => void): this;
-}
-interface SendersData {
-    readonly cid: string,
-    readonly data: sACNData,
-    readonly prio: number,
-    readonly seq: number,
-    readonly universe: number,
 }
 export class sACNData {
     data: number[] = new Array(512);
