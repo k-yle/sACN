@@ -77,6 +77,7 @@ export class Receiver extends EventEmitter {
         this.emit(event, err);
       }
     });
+    this.socket.on('error', (ex) => this.emit('error', ex));
     this.socket.bind(this.port, () => {
       for (const uni of this.universes) {
         try {

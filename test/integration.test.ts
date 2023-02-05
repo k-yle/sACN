@@ -1,20 +1,28 @@
 import assert from 'assert';
+import { networkInterfaces } from 'os';
 import { Receiver, Sender, Packet } from '../src';
 
 const sleep = (ms: number) => new Promise((cb) => setTimeout(cb, ms));
 
+function collectErrors(Rx: Receiver, errors: Error[]) {
+  Rx.on('error', (ex) => errors.push(ex));
+  Rx.on('PacketCorruption', (ex) => errors.push(ex));
+  Rx.on('PacketOutOfOrder', (ex) => errors.push(ex));
+}
+
 describe('Receiver & Sender (integration test)', () => {
   it("sends and receives packets on the universes it's meant to listen on", async () => {
-    const Tx1 = new Sender({ universe: 1 });
-    const Tx2 = new Sender({ universe: 2 });
+    const Tx1 = new Sender({ universe: 1, reuseAddr: true });
+    const Tx2 = new Sender({ universe: 2, reuseAddr: true });
     const Rx = new Receiver({
       universes: [1, 3], // not listening to universe 2
+      reuseAddr: true,
     });
     try {
       const received: Packet[] = [];
+      const errors: Error[] = [];
       Rx.on('packet', (packet) => received.push(packet));
-      Rx.on('PacketCorruption', console.error);
-      Rx.on('PacketOutOfOrder', console.error);
+      collectErrors(Rx, errors);
 
       // stuff takes time
       await sleep(3500);
@@ -23,6 +31,7 @@ describe('Receiver & Sender (integration test)', () => {
       await Tx2.send({ payload: { 512: 100 } });
       await sleep(3500);
 
+      assert.strictEqual(errors.length, 0);
       assert.strictEqual(received.length, 2);
       assert.deepStrictEqual(received[0]!.payload, { 1: 100 });
       assert.deepStrictEqual(received[1]!.payload, { 4: 25.1 });
@@ -34,17 +43,20 @@ describe('Receiver & Sender (integration test)', () => {
   });
 
   it('re-sends the packet data if minRefreshRate is supplied', async () => {
-    const Tx = new Sender({ universe: 1, minRefreshRate: 1 });
-    const Rx = new Receiver({ universes: [1] });
+    const Tx = new Sender({ universe: 1, minRefreshRate: 1, reuseAddr: true });
+    const Rx = new Receiver({ universes: [1], reuseAddr: true });
     try {
       const received: Packet[] = [];
+      const errors: Error[] = [];
       Rx.on('packet', (packet) => received.push(packet));
+      collectErrors(Rx, errors);
 
       // stuff takes time
       await sleep(3500);
       await Tx.send({ payload: { 1: 100 } });
       await sleep(3500);
 
+      assert.strictEqual(errors.length, 0);
       assert.strictEqual(received.length, 4); // send at 0s, 1s, 2s, 3s. Then at 3.5s we stop
       assert.deepStrictEqual(received[0]!.payload, { 1: 100 });
       assert.deepStrictEqual(received[1]!.payload, { 1: 100 });
@@ -66,10 +78,11 @@ describe('Receiver & Sender (integration test)', () => {
     const sACN = new Receiver({
       universes: [1],
       iface: '/dev/null',
+      reuseAddr: true,
     });
     try {
       const errors: Error[] = [];
-      sACN.on('error', (ex) => errors.push(ex));
+      collectErrors(sACN, errors);
 
       // stuff takes time
       await sleep(500);
@@ -84,6 +97,7 @@ describe('Receiver & Sender (integration test)', () => {
   it('has working addUniverse and removeUniverse methods', async () => {
     const sACN = new Receiver({
       universes: [1, 2, 500],
+      reuseAddr: true,
     });
     try {
       await sleep(500);
@@ -116,6 +130,7 @@ describe('Receiver & Sender (integration test)', () => {
         cid: Buffer.from([0x01, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
         sourceName: 'grandMA3',
       },
+      reuseAddr: true,
     });
     const Tx2 = new Sender({
       universe: 14,
@@ -123,16 +138,15 @@ describe('Receiver & Sender (integration test)', () => {
         cid: Buffer.from([0x02, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
         sourceName: 'RoadHog4',
       },
+      reuseAddr: true,
     });
-    const Rx = new Receiver({ universes: [14] });
+    const Rx = new Receiver({ universes: [14], reuseAddr: true });
 
     try {
       const received: Packet[] = [];
       const errors: Error[] = [];
       Rx.on('packet', (packet) => received.push(packet));
-      Rx.on('error', (error) => errors.push(error));
-      Rx.on('PacketOutOfOrder', (error) => errors.push(error));
-      Rx.on('PacketOutOfOrder', (error) => errors.push(error));
+      collectErrors(Rx, errors);
 
       await Tx1.send({ payload: { 1: 100 } }); // 0
       await Tx1.send({ payload: { 1: 0 } }); // 1
@@ -181,6 +195,7 @@ describe('Receiver & Sender (integration test)', () => {
         cid: Buffer.from([0x01, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
         sourceName: 'Full Boar 4',
       },
+      reuseAddr: true,
     });
     const Tx2 = new Sender({
       universe: 5,
@@ -188,17 +203,16 @@ describe('Receiver & Sender (integration test)', () => {
         cid: Buffer.from([0x01, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
         sourceName: 'Full Boar 4',
       },
+      reuseAddr: true,
     });
-    const Rx = new Receiver({ universes: [5] });
+    const Rx = new Receiver({ universes: [5], reuseAddr: true });
 
     try {
       const received: Packet[] = [];
       const errors: Error[] = [];
 
       Rx.on('packet', (packet) => received.push(packet));
-      Rx.on('error', (error) => errors.push(error));
-      Rx.on('PacketOutOfOrder', (error) => errors.push(error));
-      Rx.on('PacketOutOfOrder', (error) => errors.push(error));
+      collectErrors(Rx, errors);
 
       // send 25 packets from Tx1
       for (let i = 0; i < 25; i += 1) {
@@ -232,6 +246,58 @@ describe('Receiver & Sender (integration test)', () => {
       Tx1.close();
       Tx2.close();
       Rx.close();
+    }
+  });
+});
+
+describe('Sending to a specific interface', () => {
+  const [i1, i2] = Object.values(networkInterfaces())
+    .map((addrs) => addrs!.find((a) => a.family === 'IPv4')?.address)
+    .filter((ip): ip is string => !!ip && ip !== '127.0.0.1');
+
+  console.log('Broadcasting to', [i1, i2]);
+
+  if (!i1 || !i2) {
+    console.error(
+      "Can't run some tests, machine doesn't have two IPv4 network interfaces",
+    );
+  }
+
+  const maybeRunTest = i1 && i2 ? it : it.skip;
+
+  maybeRunTest('can send data to a specific interface', async () => {
+    const Tx1 = new Sender({ universe: 1, iface: i1, reuseAddr: true });
+    const Tx2 = new Sender({ universe: 1, iface: i2, reuseAddr: true });
+    const Rx1 = new Receiver({ universes: [1], iface: i1, reuseAddr: true });
+    const Rx2 = new Receiver({ universes: [1], iface: i2, reuseAddr: true });
+    try {
+      const received1: Packet[] = [];
+      const received2: Packet[] = [];
+      const errors: Error[] = [];
+      Rx1.on('packet', (packet) => received1.push(packet));
+      Rx2.on('packet', (packet) => received2.push(packet));
+
+      collectErrors(Rx1, errors);
+      collectErrors(Rx2, errors);
+
+      // stuff takes time
+      await sleep(3500);
+      await Tx1.send({ payload: { 11: 0xff } });
+      await Tx2.send({ payload: { 22: 0xff } });
+      await sleep(3500);
+
+      console.error(errors, received1.length, received2.length);
+
+      assert.strictEqual(errors.length, 0);
+      assert.strictEqual(received1.length, 1);
+      assert.strictEqual(received2.length, 1);
+      assert.deepStrictEqual(received1[0]!.payload, { 11: 100 });
+      assert.deepStrictEqual(received2[0]!.payload, { 22: 100 });
+    } finally {
+      Tx1.close();
+      Tx2.close();
+      Rx1.close();
+      Rx2.close();
     }
   });
 });
