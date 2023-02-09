@@ -17,6 +17,9 @@ interface Props {
 
   /** some options can be sepecified when you instantiate the sender, instead of sepecifying them on every packet */
   defaultPacketOptions?: Pick<Options, 'cid' | 'sourceName' | 'priority'>;
+
+  // IPv4 address of the network interface
+  iface?: string;
 }
 
 export class Sender {
@@ -47,6 +50,7 @@ export class Sender {
     reuseAddr = false,
     minRefreshRate = 0,
     defaultPacketOptions,
+    iface,
   }: Props) {
     this.port = port;
     this.universe = universe;
@@ -54,6 +58,16 @@ export class Sender {
     this.defaultPacketOptions = defaultPacketOptions;
 
     this.socket = createSocket({ type: 'udp4', reuseAddr });
+
+    if (iface || reuseAddr) {
+      // prevent different behavior due to socket.bind() side effects, but binding the socket when reuseAddr: false could cause problems
+      this.socket.bind(port, () => {
+        // need to bind socket first
+        if (iface) {
+          this.socket.setMulticastInterface(iface);
+        }
+      });
+    }
 
     if (minRefreshRate) {
       this.#loopId = setInterval(() => this.reSend(), 1000 / minRefreshRate);

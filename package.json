@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint --ext .ts --ignore-path .gitignore .",
-    "unit-tests": "jest",
+    "unit-tests": "jest -i",
     "test": "npm run lint && npm run build && npm run unit-tests",
     "prepublishOnly": "tsc",
     "trypublish": "npm publish || true"
