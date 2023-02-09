@@ -19,7 +19,7 @@ interface Props {
   defaultPacketOptions?: Pick<Options, 'cid' | 'sourceName' | 'priority'>;
 
   // IPv4 address of the network interface
-  iface?: string,
+  iface?: string;
 }
 
 export class Sender {
@@ -59,8 +59,10 @@ export class Sender {
 
     this.socket = createSocket({ type: 'udp4', reuseAddr });
 
-    if (iface || reuseAddr) { // prevent different behavior due to socket.bind() side effects, but binding the socket when reuseAddr: false could cause problems
-      this.socket.bind(port, () => { // need to bind socket first
+    if (iface || reuseAddr) {
+      // prevent different behavior due to socket.bind() side effects, but binding the socket when reuseAddr: false could cause problems
+      this.socket.bind(port, () => {
+        // need to bind socket first
         if (iface) {
           this.socket.setMulticastInterface(iface);
         }
