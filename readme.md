@@ -104,8 +104,8 @@ async function main() {
       1: 100,
       2: 50,
       3: 0,
-    }
-    sourceName: "My NodeJS app" // optional. LED lights will use this as the name of the source lighting console.
+    },
+    sourceName: "My NodeJS app", // optional. LED lights will use this as the name of the source lighting console.
     priority: 100, // optional. value between 0-200, in case there are other consoles broadcasting to the same universe
   });
 
@@ -116,14 +116,15 @@ main(); // wrapped in a main() function so that we can `await` the promise
 
 ```
 
-### Table 3 - Options for sender
+### Table 3 - Options for Sender
 
 | Name                   | Type      | Purpose                                                                                                    | Default |
 | ---------------------- | --------- | ---------------------------------------------------------------------------------------------------------- | ------- |
 | `universe`             | `number`  | Required. The universes to listen to. Must be within 1-63999                                               | `[]`    |
 | `port`                 | `number`  | Optional. The multicast port to use. All professional consoles broadcast to the default port.              | `5568`  |
-| `reuseAddr`            | `boolean` | Optional. Allow multiple programs on your computer to listen to the same sACN universe.                    |
+| `reuseAddr`            | `boolean` | Optional. Allow multiple programs on your computer to send to the same sACN universe.                      |
 | `defaultPacketOptions` | `object`  | Optional. You can specify options like `sourceName`, `cid`, and `priority` here instead of on every packet |
+| `iface`                | `string`  | Optional. Specifies the IPv4 address of the network interface/card to use.                                 | OS default interface (=active internet connection)
 
 # Contribute
 
