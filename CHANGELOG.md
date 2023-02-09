@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.3.0] - 2023-02-10
+
+### Added
+
+- [#47]: Allow the network interface to be selected for the Sender class
+
 ## [4.2.0] - 2022-03-18
 
 ### Added
