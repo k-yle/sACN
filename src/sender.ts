@@ -20,6 +20,14 @@ interface Props {
 
   // IPv4 address of the network interface
   iface?: string;
+
+  /**
+   * If you set this option to an IP address, then data will be sent
+   * purely to this address, instead of the whole network.
+   *
+   * This option is not recommended and may not be supported by all devices.
+   */
+  useUnicastDestination?: string;
 }
 
 export class Sender {
@@ -29,7 +37,11 @@ export class Sender {
 
   public readonly universe: Props['universe'];
 
-  private readonly multicastDest: string;
+  /**
+   * this is normally a multicast address, but it could be
+   * a unicast address if the user configures `useUnicastDestination`
+   */
+  readonly #destinationIp: string;
 
   private readonly defaultPacketOptions: Props['defaultPacketOptions'];
 
@@ -51,10 +63,11 @@ export class Sender {
     minRefreshRate = 0,
     defaultPacketOptions,
     iface,
+    useUnicastDestination,
   }: Props) {
     this.port = port;
     this.universe = universe;
-    this.multicastDest = multicastGroup(universe);
+    this.#destinationIp = useUnicastDestination || multicastGroup(universe);
     this.defaultPacketOptions = defaultPacketOptions;
 
     this.socket = createSocket({ type: 'udp4', reuseAddr });
@@ -84,7 +97,7 @@ export class Sender {
         sequence: this.sequence,
       });
       this.sequence = (this.sequence + 1) % 256;
-      this.socket.send(buffer, this.port, this.multicastDest, (err) =>
+      this.socket.send(buffer, this.port, this.#destinationIp, (err) =>
         err ? reject(err) : resolve(),
       );
     });

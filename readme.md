@@ -125,6 +125,7 @@ main(); // wrapped in a main() function so that we can `await` the promise
 | `reuseAddr`            | `boolean` | Optional. Allow multiple programs on your computer to send to the same sACN universe.                      |
 | `defaultPacketOptions` | `object`  | Optional. You can specify options like `sourceName`, `cid`, and `priority` here instead of on every packet |
 | `iface`                | `string`  | Optional. Specifies the IPv4 address of the network interface/card to use.                                 | OS default interface (=active internet connection)
+| `useUnicastDestination`| `string`  | Optional. Setting this attribute to an IPv4 address will cause data to be sent directly to that device, instead of broadcasting to the whole LAN. |
 
 # Contribute
 
@@ -135,7 +136,7 @@ npm test # run tests
 
 # Network Requirements
 
-- [x] Multicast must be enabled. sACN uses port `5568` on `239.255.x.x`
+- [x] Multicast must be enabled<sup id="footnote-source1">[1](#footnote1)</sup>. sACN uses port `5568` on `239.255.x.x`
 - [x] Network infrastructure that supports at least 100Mbps (100BaseT)
 
 # Protocol Docs
@@ -144,3 +145,10 @@ The Architecture for Control Networks (ACN) and derived protocols are created by
 
 - sACN is defined in [ANSI E1.31](./docs/E1.31-2018.pdf)
 - RDMNet is defined in [ANSI E1.33](./docs/E1.33-2019.pdf)
+
+---
+<small id="footnote1">
+
+1&shy;. Unicast is also supported by default, but this is not how sACN normally works. See [_Table 3_](#table-3---options-for-sender) for how to send data directly to a unicast address. [↩](#footnote-source1)
+
+</small>
