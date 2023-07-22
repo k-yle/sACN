@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.4.0] - 2023-07-22
+
+### Added
+
+- [#52]: Allow sending data to a specific IP address instead of the whole LAN
+
 ## [4.3.0] - 2023-02-10
 
 ### Added

@@ -286,8 +286,6 @@ describe('Sending to a specific interface', () => {
       await Tx2.send({ payload: { 22: 0xff } });
       await sleep(3500);
 
-      console.error(errors, received1.length, received2.length);
-
       assert.strictEqual(errors.length, 0);
       assert.strictEqual(received1.length, 1);
       assert.strictEqual(received2.length, 1);
@@ -298,6 +296,61 @@ describe('Sending to a specific interface', () => {
       Tx2.close();
       Rx1.close();
       Rx2.close();
+    }
+  });
+});
+
+describe('Sending to a unicast address', () => {
+  it('can send data to a specific unicast address', async () => {
+    const Tx = new Sender({
+      universe: 51,
+      useUnicastDestination: '127.0.0.1',
+    });
+    const Rx = new Receiver({ universes: [51] });
+    try {
+      const received: Packet[] = [];
+      const errors: Error[] = [];
+      Rx.on('packet', (packet) => received.push(packet));
+
+      collectErrors(Rx, errors);
+
+      // stuff takes time
+      await sleep(3500);
+      await Tx.send({ payload: { 22: 0xff } });
+      await sleep(3500);
+
+      assert.strictEqual(errors.length, 0);
+      assert.strictEqual(received.length, 1);
+      assert.deepStrictEqual(received[0]!.payload, { 22: 100 });
+    } finally {
+      Tx.close();
+      Rx.close();
+    }
+  });
+
+  it('receives nothing when sending data to an invalid unicast address', async () => {
+    const Tx = new Sender({
+      universe: 51,
+      useUnicastDestination: '192.0.2.0', // https://en.wikipedia.org/wiki/Reserved_IP_addresses
+    });
+    const Rx = new Receiver({ universes: [51] });
+    try {
+      const received: Packet[] = [];
+      const errors: Error[] = [];
+      Rx.on('packet', (packet) => received.push(packet));
+
+      collectErrors(Rx, errors);
+
+      // stuff takes time
+      await sleep(3500);
+      await Tx.send({ payload: { 22: 0xff } });
+      await sleep(3500);
+
+      assert.strictEqual(errors.length, 0);
+      assert.strictEqual(received.length, 0); // nothing was recevied
+    } finally {
+      Tx.close();
+      Rx.close();
     }
   });
 });
