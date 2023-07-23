@@ -22,16 +22,15 @@ export function objectify(buf: Buffer): Payload {
 export const inRange = (n: number): number =>
   Math.min(255, Math.max(Math.round(n), 0));
 
-export function bit(bitt: 8 | 16 | 32, num: number): number[] {
-  // we could just do a _bit_ of shifting here instead :P
-  // e.g. (0x1234 >> 8) & 255
-  const arr = new ArrayBuffer(bitt / 8);
+export function bit(bitt: 8 | 16 | 24 | 32, num: number): number[] {
+  if (bitt % 8) throw new Error('num of bits must be divisible by 8');
 
-  // this mutates `arr`
-  const view = new DataView(arr);
-  view[<const>`setUint${bitt}`](0, num, false); // ByteOffset = 0; litteEndian = false
-
-  return Array.from(new Uint8Array(arr));
+  const chunks: number[] = [];
+  for (let i = 0; i < bitt; i += 8) {
+    chunks.unshift((num >> i) & 255);
+  }
+  return chunks;
 }
+
 export const empty = (len: number): number[] =>
   Array.from(new Uint8Array(new ArrayBuffer(len)));

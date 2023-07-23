@@ -86,6 +86,7 @@ describe('bit', () => {
   it('generates valid unsigned ints', () => {
     assert.deepStrictEqual(bit(8, 0x12), [0x12]);
     assert.deepStrictEqual(bit(16, 0x1234), [0x12, 0x34]);
+    assert.deepStrictEqual(bit(24, 0x123456), [0x12, 0x34, 0x56]);
     assert.deepStrictEqual(bit(32, 0x12345678), [0x12, 0x34, 0x56, 0x78]);
   });
 });
