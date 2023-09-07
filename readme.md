@@ -100,7 +100,7 @@ const sACNServer = new Sender({
 
 async function main() {
   await sACNServer.send({
-    payload: { // required. object with the percentages for each DMX channel
+    payload: { // required. object with the percentages for each DMX channel (or set `useRawDmxValues` per packet or in the `defaultPacketOptions` for the Sender to use raw DMX values)
       1: 100,
       2: 50,
       3: 0,
@@ -123,7 +123,7 @@ main(); // wrapped in a main() function so that we can `await` the promise
 | `universe`             | `number`  | Required. The universes to listen to. Must be within 1-63999                                               | `[]`    |
 | `port`                 | `number`  | Optional. The multicast port to use. All professional consoles broadcast to the default port.              | `5568`  |
 | `reuseAddr`            | `boolean` | Optional. Allow multiple programs on your computer to send to the same sACN universe.                      |
-| `defaultPacketOptions` | `object`  | Optional. You can specify options like `sourceName`, `cid`, and `priority` here instead of on every packet |
+| `defaultPacketOptions` | `object`  | Optional. You can specify options like `sourceName`, `cid`, `priority` and `useRawDmxValues` here instead of on every packet |
 | `iface`                | `string`  | Optional. Specifies the IPv4 address of the network interface/card to use.                                 | OS default interface (=active internet connection)
 | `useUnicastDestination`| `string`  | Optional. Setting this attribute to an IPv4 address will cause data to be sent directly to that device, instead of broadcasting to the whole LAN. |
 
