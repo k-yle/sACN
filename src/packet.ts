@@ -19,6 +19,12 @@ export interface Options {
   sourceName?: Packet['sourceName'];
   priority?: Packet['priority'];
   cid?: Packet['cid'];
+  /**
+   * Whether to use 0-100 or 0-255 scale when creating the packet
+   * false (default): 0-100
+   * true: 0-255
+   */
+  useRawDmxValues?: Packet['useRawDmxValues'];
 }
 
 /**
@@ -57,6 +63,8 @@ export class Packet {
   private readonly privatePayload: Buffer | Payload;
 
   /* eslint-enable lines-between-class-members */
+
+  private readonly useRawDmxValues: boolean = false;
 
   public constructor(
     input: Buffer | Options,
@@ -121,6 +129,10 @@ export class Packet {
       this.propertyValueCount = 0x0201; // "Indicates 1+ the number of slots in packet"
       // We set the highest possible value (1+512) so that channels with zero values are
       // treated as deliberately 0 (cf. undefined)
+
+      if (options.useRawDmxValues) {
+        this.useRawDmxValues = true;
+      }
     }
   }
 
@@ -168,7 +180,11 @@ export class Packet {
 
     for (const ch in this.payload) {
       if (+ch >= 1 && +ch <= 512) {
-        n[125 + +ch] = inRange(this.payload[ch]! * 2.55);
+        if (this.useRawDmxValues) {
+          n[125 + +ch] = inRange(this.payload[ch]!);
+        } else {
+          n[125 + +ch] = inRange(this.payload[ch]! * 2.55);
+        }
       }
     }
 

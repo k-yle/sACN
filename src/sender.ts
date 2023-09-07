@@ -16,7 +16,10 @@ export interface SenderProps {
   minRefreshRate?: number;
 
   /** some options can be sepecified when you instantiate the sender, instead of sepecifying them on every packet */
-  defaultPacketOptions?: Pick<Options, 'cid' | 'sourceName' | 'priority'>;
+  defaultPacketOptions?: Pick<
+    Options,
+    'cid' | 'sourceName' | 'priority' | 'useRawDmxValues'
+  >;
 
   // IPv4 address of the network interface
   iface?: string;
