@@ -2,7 +2,7 @@ import { Socket, createSocket } from 'dgram';
 import { multicastGroup } from './util';
 import { Packet, Options } from './packet';
 
-interface Props {
+export interface SenderProps {
   universe: number;
   port?: number;
   reuseAddr?: boolean;
@@ -33,9 +33,9 @@ interface Props {
 export class Sender {
   private socket: Socket;
 
-  private readonly port: Props['port'];
+  private readonly port: SenderProps['port'];
 
-  public readonly universe: Props['universe'];
+  public readonly universe: SenderProps['universe'];
 
   /**
    * this is normally a multicast address, but it could be
@@ -43,7 +43,7 @@ export class Sender {
    */
   readonly #destinationIp: string;
 
-  private readonly defaultPacketOptions: Props['defaultPacketOptions'];
+  private readonly defaultPacketOptions: SenderProps['defaultPacketOptions'];
 
   private sequence = 0;
 
@@ -64,7 +64,7 @@ export class Sender {
     defaultPacketOptions,
     iface,
     useUnicastDestination,
-  }: Props) {
+  }: SenderProps) {
     this.port = port;
     this.universe = universe;
     this.#destinationIp = useUnicastDestination || multicastGroup(universe);
