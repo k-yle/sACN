@@ -1,7 +1,7 @@
 import { AssertionError } from 'assert';
 import { Packet } from './packet';
 import { Receiver } from './receiver';
-import { SACNData } from './sACNData';
+import type { Payload } from './util';
 
 interface MergeProps {
   universes?: number[];
@@ -12,13 +12,13 @@ interface MergeProps {
 }
 
 interface Universe {
-  lastData: SACNData;
+  lastData: Payload;
   servers: Map<string, SendersData>;
 }
 
 interface SendersData {
   readonly cid: string;
-  readonly data: SACNData;
+  readonly data: Payload;
   readonly prio: number;
   readonly seq: number;
   readonly universe: number;
@@ -42,7 +42,7 @@ export class ReceiverMerge extends Receiver {
 
     if (!this.data.has(universe)) {
       this.data.set(universe, {
-        lastData: new SACNData(),
+        lastData: [],
         servers: new Map(),
       });
       this.emit('newUniverse', {
@@ -51,7 +51,7 @@ export class ReceiverMerge extends Receiver {
       });
     }
 
-    const universeData: Universe = this.data.get(universe) as Universe;
+    const universeData = this.data.get(universe);
 
     if (!universeData) {
       throw new Error('[sACN] Internal Error: universeData is undefined');
@@ -69,7 +69,7 @@ export class ReceiverMerge extends Receiver {
 
     universeData.servers.set(cid, {
       cid: packet.cid.toString(),
-      data: new SACNData(packet.payload),
+      data: packet.payload,
       prio: packet.priority,
       seq: packet.sequence,
       universe: packet.universe,
@@ -96,33 +96,29 @@ export class ReceiverMerge extends Receiver {
     }
 
     // HTP
-    const mergedData = new SACNData();
+    const mergedData: Payload = {};
     for (const [, data] of universeData.servers) {
       if (data.prio === maximumPrio && data.universe === packet.universe) {
-        let i = 0;
-        while (i < 512) {
-          const newValue = data.data.data[i] || 0;
-          if ((mergedData.data[i] ?? 0) < newValue) {
-            mergedData.data[i] = newValue;
+        for (let i = 1; i <= 512; i += 1) {
+          const newValue = data.data[i] || 0;
+          if ((mergedData[i] ?? 0) < newValue) {
+            mergedData[i] = newValue;
           }
-          i += 1;
         }
       }
     }
 
     // only changes
-    let i = 0;
-    while (i < 512) {
-      if (universeData.lastData.data[i] !== mergedData.data[i]) {
+    for (let i = 1; i <= 512; i += 1) {
+      if (universeData.lastData[i] !== mergedData[i]) {
         super.emit('changed', {
           universe: packet.universe,
-          addr: i + 1,
-          newValue: mergedData.data[i],
-          oldValue: universeData.lastData.data[i],
+          addr: i,
+          newValue: mergedData[i],
+          oldValue: universeData.lastData[i],
         });
       }
-      universeData.lastData.data[i] = mergedData.data[i] || 0;
-      i += 1;
+      universeData.lastData[i] = mergedData[i] || 0;
     }
     super.emit('changesDone');
   }
@@ -130,7 +126,7 @@ export class ReceiverMerge extends Receiver {
   clearCache() {
     // causes every addr value to be emitted
     for (const [, univese] of this.data) {
-      univese.lastData = new SACNData();
+      univese.lastData = {};
     }
   }
 }
