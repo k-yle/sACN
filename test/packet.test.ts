@@ -59,4 +59,29 @@ describe('Simple Packet', () => {
     // double wrapped so that it converts to buffer and back
     assert.deepStrictEqual(new Packet(packet.buffer).payload, {});
   });
+
+  it('correctly sets channel values from the [0-100] range', () => {
+    const packet = new Packet({
+      universe: 1,
+      payload: { 1: 91.76, 2: 100, 4: 100 },
+      sequence: 172,
+    });
+    assert.deepStrictEqual(
+      packet.buffer.slice(126, 130), // first 4 channel values
+      Buffer.from([0xea, 0xff, 0, 0xff]),
+    );
+  });
+
+  it('correctly sets channel values from the [0-255] range', () => {
+    const packet = new Packet({
+      universe: 1,
+      payload: { 1: 234, 2: 255, 4: 255 },
+      sequence: 172,
+      useRawDmxValues: true,
+    });
+    assert.deepStrictEqual(
+      packet.buffer.slice(126, 130), // first 4 channel values
+      Buffer.from([0xea, 0xff, 0, 0xff]),
+    );
+  });
 });
