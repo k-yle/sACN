@@ -100,7 +100,10 @@ const sACNServer = new Sender({
 
 async function main() {
   await sACNServer.send({
-    payload: { // required. object with the percentages for each DMX channel (or set `useRawDmxValues` per packet or in the `defaultPacketOptions` for the Sender to use raw DMX values)
+    payload: {
+      // Required. An object with the percentages (0-100) for each DMX channel.
+      // You can use 0-255 instead of 0-100 by setting `useRawDmxValues: true`
+      // per packet, or in the `defaultPacketOptions`.
       1: 100,
       2: 50,
       3: 0,
@@ -113,7 +116,6 @@ async function main() {
 }
 
 main(); // wrapped in a main() function so that we can `await` the promise
-
 ```
 
 ### Table 3 - Options for Sender
@@ -147,6 +149,7 @@ The Architecture for Control Networks (ACN) and derived protocols are created by
 - RDMNet is defined in [ANSI E1.33](./docs/E1.33-2019.pdf)
 
 ---
+
 <small id="footnote1">
 
 1&shy;. Unicast is also supported by default, but this is not how sACN normally works. See [_Table 3_](#table-3---options-for-sender) for how to send data directly to a unicast address. [↩](#footnote-source1)

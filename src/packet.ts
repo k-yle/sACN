@@ -21,8 +21,8 @@ export interface Options {
   cid?: Packet['cid'];
   /**
    * Whether to use 0-100 or 0-255 scale when creating the packet
-   * false (default): 0-100
-   * true: 0-255
+   * - `false` (default): 0-100
+   * - `true`: 0-255
    */
   useRawDmxValues?: Packet['useRawDmxValues'];
 }
