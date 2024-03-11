@@ -9,11 +9,12 @@ export class LTPMergingReceiver extends AbstractMergingReceiver {
     const mergedData = new DMXUniverse();
 
     for (let ch = 0; ch < 512; ch += 1) {
-      const referenceTime = 0;
+      let referenceTime = 0;
       mergedData.data[ch] = referenceData.data[ch] || 0;
 
       for (const [, tmp] of data.universeData.servers) {
         if (tmp.lastUpdate > referenceTime) {
+          referenceTime = tmp.lastUpdate;
           mergedData.data[ch] =
             tmp.data.data[ch] || (mergedData.data[ch] as number);
         }
