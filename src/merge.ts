@@ -19,8 +19,8 @@ interface Universe {
 interface SendersData {
   readonly cid: string;
   readonly data: Payload;
-  readonly prio: number;
-  readonly seq: number;
+  readonly priority: number;
+  readonly sequence: number;
   readonly universe: number;
   readonly lastTimestamp: number;
 }
@@ -70,8 +70,8 @@ export class ReceiverMerge extends Receiver {
     universeData.servers.set(cid, {
       cid: packet.cid.toString(),
       data: packet.payload,
-      prio: packet.priority,
-      seq: packet.sequence,
+      priority: packet.priority,
+      sequence: packet.sequence,
       universe: packet.universe,
       lastTimestamp: ts,
     });
@@ -90,15 +90,15 @@ export class ReceiverMerge extends Receiver {
     // detect which source has the highest per-universe priority
     let maximumPrio = 0;
     for (const [, data] of universeData.servers) {
-      if (data.prio > maximumPrio && data.universe === packet.universe) {
-        maximumPrio = data.prio;
+      if (data.priority > maximumPrio && data.universe === packet.universe) {
+        maximumPrio = data.priority;
       }
     }
 
     // HTP
     const mergedData: Payload = {};
     for (const [, data] of universeData.servers) {
-      if (data.prio === maximumPrio && data.universe === packet.universe) {
+      if (data.priority === maximumPrio && data.universe === packet.universe) {
         for (let i = 1; i <= 512; i += 1) {
           const newValue = data.data[i] || 0;
           if ((mergedData[i] ?? 0) < newValue) {
