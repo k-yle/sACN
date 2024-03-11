@@ -1,7 +1,7 @@
 import { AssertionError } from 'assert';
-import { Packet } from './packet';
-import { Receiver } from './receiver';
-import type { Payload } from './util';
+import { Packet } from '../packet';
+import { Receiver } from '../receiver';
+import type { Payload } from '../util';
 
 interface MergeProps {
   universes?: number[];
