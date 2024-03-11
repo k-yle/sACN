@@ -13,15 +13,11 @@ interface MergeProps {
 
 interface Universe {
   lastData: Payload;
-  servers: Map<string, SendersData>;
+  servers: Map<string, PacketWithTimestamp>;
 }
 
-interface SendersData {
-  readonly cid: string;
-  readonly data: Payload;
-  readonly priority: number;
-  readonly sequence: number;
-  readonly universe: number;
+interface PacketWithTimestamp {
+  readonly packet: Packet;
   readonly lastTimestamp: number;
 }
 
@@ -36,7 +32,7 @@ export class ReceiverMerge extends Receiver {
 
   protected data = new Map<string, Universe>();
 
-  mergePacket(packet: Packet) {
+  public mergePacket(packet: Packet) {
     const universe = packet.universe.toString(36);
     const cid = packet.cid.toString();
 
@@ -68,11 +64,7 @@ export class ReceiverMerge extends Receiver {
     const ts = performance.now();
 
     universeData.servers.set(cid, {
-      cid: packet.cid.toString(),
-      data: packet.payload,
-      priority: packet.priority,
-      sequence: packet.sequence,
-      universe: packet.universe,
+      packet,
       lastTimestamp: ts,
     });
 
@@ -88,19 +80,25 @@ export class ReceiverMerge extends Receiver {
     }, this.timeout);
 
     // detect which source has the highest per-universe priority
-    let maximumPrio = 0;
-    for (const [, data] of universeData.servers) {
-      if (data.priority > maximumPrio && data.universe === packet.universe) {
-        maximumPrio = data.priority;
+    let maximumPriority = 0;
+    for (const [, { packet: thisPacket }] of universeData.servers) {
+      if (
+        thisPacket.priority > maximumPriority &&
+        thisPacket.universe === packet.universe
+      ) {
+        maximumPriority = thisPacket.priority;
       }
     }
 
     // HTP
     const mergedData: Payload = {};
-    for (const [, data] of universeData.servers) {
-      if (data.priority === maximumPrio && data.universe === packet.universe) {
+    for (const [, { packet: thisPacket }] of universeData.servers) {
+      if (
+        thisPacket.priority === maximumPriority &&
+        thisPacket.universe === packet.universe
+      ) {
         for (let i = 1; i <= 512; i += 1) {
-          const newValue = data.data[i] || 0;
+          const newValue = thisPacket.payload[i] || 0;
           if ((mergedData[i] ?? 0) < newValue) {
             mergedData[i] = newValue;
           }
@@ -123,7 +121,7 @@ export class ReceiverMerge extends Receiver {
     super.emit('changesDone');
   }
 
-  clearCache() {
+  public clearCache() {
     // causes every addr value to be emitted
     for (const [, univese] of this.data) {
       univese.lastData = {};
