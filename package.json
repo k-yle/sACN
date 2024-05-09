@@ -10,7 +10,7 @@
     "unit-tests": "jest -i",
     "test": "npm run lint && npm run build && npm run unit-tests",
     "prepublishOnly": "tsc",
-    "trypublish": "npm publish || true"
+    "trypublish": "npm publish --provenance || true"
   },
   "main": "dist",
   "types": "dist/index.d.ts",
