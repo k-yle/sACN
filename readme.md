@@ -122,7 +122,7 @@ main(); // wrapped in a main() function so that we can `await` the promise
 
 | Name                   | Type      | Purpose                                                                                                    | Default |
 | ---------------------- | --------- | ---------------------------------------------------------------------------------------------------------- | ------- |
-| `universe`             | `number`  | Required. The universes to listen to. Must be within 1-63999                                               | `[]`    |
+| `universe`             | `number`  | Required. The universe to send to. Must be within 1-63999                                                  |         |
 | `port`                 | `number`  | Optional. The multicast port to use. All professional consoles broadcast to the default port.              | `5568`  |
 | `reuseAddr`            | `boolean` | Optional. Allow multiple programs on your computer to send to the same sACN universe.                      |
 | `defaultPacketOptions` | `object`  | Optional. You can specify options like `sourceName`, `cid`, `priority` and `useRawDmxValues` here instead of on every packet |
