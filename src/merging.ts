@@ -1,7 +1,7 @@
 import { performance } from 'node:perf_hooks';
-import { Packet } from '../packet';
-import { Receiver } from '../receiver';
-import type { Payload } from '../util';
+import { Packet } from './packet';
+import { Receiver } from './receiver';
+import type { Payload } from './util';
 
 interface Universe {
   lastData: Payload;
