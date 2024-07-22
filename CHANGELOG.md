@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [#54]: Added option to use raw dmx values
 - [#53]: Allow sending data to a specific IP instead of the whole LAN
 - [#57]: Export `Sender` props
+- Support the `using` operator
 - Minor performance improvements
 - Minor improvements to type defintions and integration tests
 

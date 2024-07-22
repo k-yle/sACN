@@ -127,4 +127,6 @@ export class Receiver extends EventEmitter {
     this.socket.close(callback);
     return this;
   }
+
+  [Symbol.dispose] = this.close;
 }

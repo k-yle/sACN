@@ -3,6 +3,7 @@
     "outDir": "./dist",
     "module": "commonjs",
     "target": "es2015",
+    "lib": ["esnext"],
     "strict": true,
     "esModuleInterop": true,
     "moduleResolution": "node",

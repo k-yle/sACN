@@ -2,6 +2,10 @@ import assert from 'assert';
 import { networkInterfaces } from 'os';
 import { type Packet, Receiver, Sender } from '../src';
 
+// @ts-expect-error -- polyfill
+Symbol.dispose ||= Symbol('dispose');
+
+// TODO: switch to `node:timers/promises` once we drop support for node14
 const sleep = (ms: number) => new Promise((cb) => setTimeout(cb, ms));
 
 function collectErrors(Rx: Receiver, errors: Error[]) {
@@ -40,6 +44,32 @@ describe('Receiver & Sender (integration test)', () => {
       Tx2.close();
       Rx.close();
     }
+  });
+
+  it('supports Symbol.dispose', async () => {
+    using Tx1 = new Sender({ universe: 1, reuseAddr: true });
+    using Tx2 = new Sender({ universe: 2, reuseAddr: true });
+    using Rx = new Receiver({
+      universes: [1, 3], // not listening to universe 2
+      reuseAddr: true,
+    });
+
+    const received: Packet[] = [];
+    const errors: Error[] = [];
+    Rx.on('packet', (packet) => received.push(packet));
+    collectErrors(Rx, errors);
+
+    // stuff takes time
+    await sleep(3500);
+    await Tx1.send({ payload: { 1: 100 } });
+    await Tx1.send({ payload: { 4: 25.1, 5: 0 } });
+    await Tx2.send({ payload: { 512: 100 } });
+    await sleep(3500);
+
+    assert.strictEqual(errors.length, 0);
+    assert.strictEqual(received.length, 2);
+    assert.deepStrictEqual(received[0]!.payload, { 1: 100 });
+    assert.deepStrictEqual(received[1]!.payload, { 4: 25.1 });
   });
 
   it('re-sends the packet data if minRefreshRate is supplied', async () => {

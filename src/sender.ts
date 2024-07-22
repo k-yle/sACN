@@ -163,4 +163,6 @@ export class Sender extends EventEmitter {
     this.socket.close();
     return this;
   }
+
+  [Symbol.dispose] = this.close;
 }
