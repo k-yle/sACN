@@ -1,4 +1,5 @@
 import { Socket, createSocket } from 'dgram';
+import { EventEmitter } from 'events';
 import { multicastGroup } from './util';
 import { Packet, Options } from './packet';
 
@@ -49,7 +50,7 @@ export namespace Sender {
   }
 }
 
-export class Sender {
+export class Sender extends EventEmitter {
   private socket: Socket;
 
   private readonly port: Sender.Props['port'];
@@ -84,6 +85,7 @@ export class Sender {
     iface,
     useUnicastDestination,
   }: Sender.Props) {
+    super();
     this.port = port;
     this.universe = universe;
     this.#destinationIp = useUnicastDestination || multicastGroup(universe);
@@ -123,7 +125,11 @@ export class Sender {
   }
 
   private reSend() {
-    if (this.#latestPacketOptions) this.send(this.#latestPacketOptions);
+    if (this.#latestPacketOptions) {
+      this.send(this.#latestPacketOptions).catch((err) =>
+        this.emit('error', err),
+      );
+    }
   }
 
   public close(): this {
