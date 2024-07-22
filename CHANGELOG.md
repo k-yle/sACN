@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.5.0] - 2024-07-22
+
 ### Added
 
 - [#43] [#58]: Experimental support for a Receiver that can merge data from multiple sources
