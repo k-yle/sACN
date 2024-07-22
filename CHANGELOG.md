@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- [#43] [#58]: Experimental support for a Receiver that can merge data from multiple sources
+- [#54]: Added option to use raw dmx values
+- [#53]: Allow sending data to a specific IP instead of the whole LAN
+- [#57]: Export `Sender` props
+- Minor performance improvements
+- Minor improvements to type defintions and integration tests
+
 ## [4.4.0] - 2023-07-22
 
 ### Added
