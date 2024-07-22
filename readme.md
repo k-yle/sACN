@@ -130,6 +130,22 @@ main(); // wrapped in a main() function so that we can `await` the promise
 | `minRefreshRate`       | `number`  | Optional. How often the data should be re-sent (*in Hertz/Hz*), even if it hasn't changed. By default data will only be sent once (equivilant of setting `refreshRate: 0`). To re-send data 5 times per second (`5Hz`), set `refreshRate: 5`. This is equivilant to `200ms`.                                 | `0`
 | `useUnicastDestination`| `string`  | Optional. Setting this attribute to an IPv4 address will cause data to be sent directly to that device, instead of broadcasting to the whole LAN. |
 
+## `using` operator
+
+This library supports [the `using` operator](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-2.html). This means you don't have to explicitly call `.close()`.
+
+```ts
+async function main() {
+  using sender = new Sender({ /* ... */ });
+
+  await sender.send({ /* ... */ });
+
+  // you don't need to call sender.close(), it's automatically
+  // closed when the block ends, thanks to the `using` keyword
+}
+
+```
+
 # Contribute
 
 ```bash

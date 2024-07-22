@@ -131,4 +131,6 @@ export class Sender {
     this.socket.close();
     return this;
   }
+
+  [Symbol.dispose] = this.close;
 }
