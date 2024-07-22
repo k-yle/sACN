@@ -127,6 +127,7 @@ main(); // wrapped in a main() function so that we can `await` the promise
 | `reuseAddr`            | `boolean` | Optional. Allow multiple programs on your computer to send to the same sACN universe.                      |
 | `defaultPacketOptions` | `object`  | Optional. You can specify options like `sourceName`, `cid`, `priority` and `useRawDmxValues` here instead of on every packet |
 | `iface`                | `string`  | Optional. Specifies the IPv4 address of the network interface/card to use.                                 | OS default interface (=active internet connection)
+| `minRefreshRate`       | `number`  | Optional. How often the data should be re-sent (*in Hertz/Hz*), even if it hasn't changed. By default data will only be sent once (equivilant of setting `refreshRate: 0`). To re-send data 5 times per second (`5Hz`), set `refreshRate: 5`. This is equivilant to `200ms`.                                 | `0`
 | `useUnicastDestination`| `string`  | Optional. Setting this attribute to an IPv4 address will cause data to be sent directly to that device, instead of broadcasting to the whole LAN. |
 
 # Contribute

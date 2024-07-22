@@ -5,18 +5,34 @@ import { AssertionError } from 'assert';
 import { Packet } from './packet';
 import { multicastGroup } from './util';
 
-export interface ReceiverProps {
-  universes?: number[];
-  port?: number;
-  iface?: string; // local ip address of network inteface to use
-  reuseAddr?: boolean;
+/** @deprecated - use {@link Receiver.Props} instead */
+export type ReceiverProps = Receiver.Props;
+
+export declare namespace Receiver {
+  export interface Props {
+    /** List of universes to listen to. Must be within `1-63999 */
+    universes?: number[];
+    /** The multicast port to use. All professional consoles broadcast to the default port. */
+    port?: number;
+    /** local ip address of network inteface to use */
+    iface?: string;
+    /** Allow multiple programs on your computer to listen to the same sACN universe. */
+    reuseAddr?: boolean;
+  }
+
+  export interface EventMap {
+    packet: Packet;
+    PacketCorruption: AssertionError;
+    PacketOutOfOrder: Error;
+    error: Error;
+  }
 }
 
 export declare interface Receiver {
-  on(event: 'packet', listener: (packet: Packet) => void): this;
-  on(event: 'PacketCorruption', listener: (err: AssertionError) => void): this;
-  on(event: 'PacketOutOfOrder', listener: (err: Error) => void): this;
-  on(event: 'error', listener: (err: Error) => void): this;
+  on<K extends keyof Receiver.EventMap>(
+    type: K,
+    listener: (event: Receiver.EventMap[K]) => void,
+  ): this;
 }
 
 export class Receiver extends EventEmitter {
@@ -24,18 +40,18 @@ export class Receiver extends EventEmitter {
 
   private lastSequence: Record<string, number>;
 
-  private readonly port: ReceiverProps['port'];
+  private readonly port: Receiver.Props['port'];
 
-  public universes: NonNullable<ReceiverProps['universes']>;
+  public universes: NonNullable<Receiver.Props['universes']>;
 
-  private readonly iface: ReceiverProps['iface'];
+  private readonly iface: Receiver.Props['iface'];
 
   constructor({
     universes = [1],
     port = 5568,
     iface = undefined,
     reuseAddr = false,
-  }: ReceiverProps) {
+  }: Receiver.Props) {
     super();
     this.universes = universes;
     this.port = port;

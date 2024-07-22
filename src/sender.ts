@@ -2,43 +2,59 @@ import { Socket, createSocket } from 'dgram';
 import { multicastGroup } from './util';
 import { Packet, Options } from './packet';
 
-export interface SenderProps {
-  universe: number;
-  port?: number;
-  reuseAddr?: boolean;
-  /**
-   * How often the data should be re-sent (**in Hertz/Hz**), even if it hasn't changed.
-   *
-   * By default data will only be sent once (equivilant of setting `refreshRate: 0`).
-   *
-   * To re-send data 5 times per second (`5Hz`), set `refreshRate: 5`. This is equivilant to `200ms`.
-   */
-  minRefreshRate?: number;
+/** @deprecated - use {@link Sender.Props} instead */
+export type SenderProps = Sender.Props;
 
-  /** some options can be sepecified when you instantiate the sender, instead of sepecifying them on every packet */
-  defaultPacketOptions?: Pick<
-    Options,
-    'cid' | 'sourceName' | 'priority' | 'useRawDmxValues'
-  >;
+export namespace Sender {
+  export interface Props {
+    /** The universe to send to. Must be within 1-63999 */
+    universe: number;
+    /**
+     * The multicast port to use. All professional consoles broadcast to the default port.
+     * @default 5568
+     */
+    port?: number;
+    /**
+     * Allow multiple programs on your computer to send to the same sACN universe.
+     * @default false
+     */
+    reuseAddr?: boolean;
+    /**
+     * How often the data should be re-sent (**in Hertz/Hz**), even if it hasn't changed.
+     *
+     * By default data will only be sent once (equivilant of setting `refreshRate: 0`).
+     *
+     * To re-send data 5 times per second (`5Hz`), set `refreshRate: 5`. This is equivilant to `200ms`.
+     *
+     * @default 0
+     */
+    minRefreshRate?: number;
 
-  // IPv4 address of the network interface
-  iface?: string;
+    /** some options can be sepecified when you instantiate the sender, instead of sepecifying them on every packet */
+    defaultPacketOptions?: Pick<
+      Options,
+      'cid' | 'sourceName' | 'priority' | 'useRawDmxValues'
+    >;
 
-  /**
-   * If you set this option to an IP address, then data will be sent
-   * purely to this address, instead of the whole network.
-   *
-   * This option is not recommended and may not be supported by all devices.
-   */
-  useUnicastDestination?: string;
+    // IPv4 address of the network interface
+    iface?: string;
+
+    /**
+     * If you set this option to an IP address, then data will be sent
+     * purely to this address, instead of the whole network.
+     *
+     * This option is not recommended and may not be supported by all devices.
+     */
+    useUnicastDestination?: string;
+  }
 }
 
 export class Sender {
   private socket: Socket;
 
-  private readonly port: SenderProps['port'];
+  private readonly port: Sender.Props['port'];
 
-  public readonly universe: SenderProps['universe'];
+  public readonly universe: Sender.Props['universe'];
 
   /**
    * this is normally a multicast address, but it could be
@@ -46,7 +62,7 @@ export class Sender {
    */
   readonly #destinationIp: string;
 
-  private readonly defaultPacketOptions: SenderProps['defaultPacketOptions'];
+  private readonly defaultPacketOptions: Sender.Props['defaultPacketOptions'];
 
   private sequence = 0;
 
@@ -67,7 +83,7 @@ export class Sender {
     defaultPacketOptions,
     iface,
     useUnicastDestination,
-  }: SenderProps) {
+  }: Sender.Props) {
     this.port = port;
     this.universe = universe;
     this.#destinationIp = useUnicastDestination || multicastGroup(universe);

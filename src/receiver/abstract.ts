@@ -1,15 +1,7 @@
-import { AssertionError } from 'assert';
+import { performance } from 'node:perf_hooks';
 import { Packet } from '../packet';
 import { Receiver } from '../receiver';
 import type { Payload } from '../util';
-
-interface MergeProps {
-  universes?: number[];
-  port?: number;
-  iface?: string;
-  reuseAddr?: boolean;
-  timeout?: number;
-}
 
 interface Universe {
   lastData: Payload;
@@ -21,8 +13,41 @@ interface PacketWithTimestamp {
   readonly lastTimestamp: number;
 }
 
+export namespace ReceiverMerge {
+  export interface Props extends Receiver.Props {
+    timeout?: number;
+  }
+
+  export interface EventMap extends Receiver.EventMap {
+    changed: {
+      universe: number;
+      addr: number;
+      newValue: number;
+      oldValue: number;
+    };
+    changesDone: never;
+    senderConnect: {
+      cid: number;
+      universe: number;
+      firstPacket: Packet;
+    };
+    senderDisconnect: {
+      cid: number;
+      universe: number;
+      lastPacket: Packet;
+    };
+  }
+}
+
+export declare interface ReceiverMerge {
+  on<K extends keyof Receiver.EventMap>(
+    type: K,
+    listener: (event: Receiver.EventMap[K]) => void,
+  ): this;
+}
+
 export class ReceiverMerge extends Receiver {
-  constructor({ timeout = 5000, ...props }: MergeProps) {
+  constructor({ timeout = 5000, ...props }: ReceiverMerge.Props) {
     super(props);
     this.timeout = timeout;
     super.on('packet', this.mergePacket);
@@ -127,41 +152,4 @@ export class ReceiverMerge extends Receiver {
       univese.lastData = {};
     }
   }
-}
-export declare interface ReceiverMerge {
-  // on(event: string, listener: (...args: any[]) => void): this;
-  on(
-    event: Parameters<Receiver['on']>[0],
-    listener: Parameters<Receiver['on']>[1],
-  ): this;
-  on(
-    event: 'changed',
-    listener: (ev: {
-      universe: number;
-      addr: number;
-      newValue: number;
-      oldValue: number;
-    }) => void,
-  ): this;
-  on(event: 'changesDone', listener: () => void): this;
-  on(
-    event: 'senderConnect',
-    listener: (ev: {
-      cid: number;
-      universe: number;
-      firstPacket: Packet;
-    }) => void,
-  ): this;
-  on(
-    event: 'senderDisconnect',
-    listener: (ev: {
-      cid: number;
-      universe: number;
-      lastPacket: Packet;
-    }) => void,
-  ): this;
-  on(event: 'packet', listener: (packet: Packet) => void): this;
-  on(event: 'PacketCorruption', listener: (err: AssertionError) => void): this;
-  on(event: 'PacketOutOfOrder', listener: (err: Error) => void): this;
-  on(event: 'error', listener: (err: Error) => void): this;
 }
