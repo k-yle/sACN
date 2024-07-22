@@ -67,6 +67,8 @@ export class Sender extends EventEmitter {
 
   private sequence = 0;
 
+  private resendStatus = false;
+
   #loopId: NodeJS.Timeout | undefined;
 
   /**
@@ -126,9 +128,21 @@ export class Sender extends EventEmitter {
 
   private reSend() {
     if (this.#latestPacketOptions) {
-      this.send(this.#latestPacketOptions).catch((err) =>
-        this.emit('error', err),
-      );
+      this.send(this.#latestPacketOptions)
+        .then(() => {
+          this.updateResendStatus(true);
+        })
+        .catch((err) => {
+          this.updateResendStatus(false);
+          this.emit('error', err);
+        });
+    }
+  }
+
+  private updateResendStatus(success: boolean) {
+    if (success !== this.resendStatus) {
+      this.resendStatus = success;
+      this.emit('changedResendStatus', success);
     }
   }
 
