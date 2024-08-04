@@ -48,6 +48,18 @@ export namespace Sender {
      */
     useUnicastDestination?: string;
   }
+
+  export interface EventMap {
+    changedResendStatus: boolean;
+    error: Error;
+  }
+}
+
+export declare interface Sender {
+  on<K extends keyof Sender.EventMap>(
+    type: K,
+    listener: (event: Sender.EventMap[K]) => void,
+  ): this;
 }
 
 export class Sender extends EventEmitter {
