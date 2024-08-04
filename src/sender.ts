@@ -67,7 +67,7 @@ export class Sender extends EventEmitter {
 
   private sequence = 0;
 
-  private resendStatus = false;
+  public resendStatus = false;
 
   #loopId: NodeJS.Timeout | undefined;
 
