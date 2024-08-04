@@ -48,6 +48,9 @@ describe('Receiver & Sender (integration test)', () => {
     try {
       const received: Packet[] = [];
       const errors: Error[] = [];
+      const receivedEvents: boolean[] = [];
+      Tx.on('changedResendStatus', (event) => receivedEvents.push(event));
+      Tx.on('error', (ex) => errors.push(ex));
       Rx.on('packet', (packet) => received.push(packet));
       collectErrors(Rx, errors);
 
@@ -58,6 +61,8 @@ describe('Receiver & Sender (integration test)', () => {
 
       assert.strictEqual(errors.length, 0);
       assert.strictEqual(received.length, 4); // send at 0s, 1s, 2s, 3s. Then at 3.5s we stop
+      assert.strictEqual(receivedEvents.length, 1);
+      assert.deepStrictEqual(receivedEvents[0], true);
       assert.deepStrictEqual(received[0]!.payload, { 1: 100 });
       assert.deepStrictEqual(received[1]!.payload, { 1: 100 });
       assert.deepStrictEqual(received[2]!.payload, { 1: 100 });
