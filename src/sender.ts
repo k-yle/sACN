@@ -1,4 +1,5 @@
 import { Socket, createSocket } from 'dgram';
+import { EventEmitter } from 'events';
 import { multicastGroup } from './util';
 import { Packet, Options } from './packet';
 
@@ -47,9 +48,21 @@ export namespace Sender {
      */
     useUnicastDestination?: string;
   }
+
+  export interface EventMap {
+    changedResendStatus: boolean;
+    error: Error;
+  }
 }
 
-export class Sender {
+export declare interface Sender {
+  on<K extends keyof Sender.EventMap>(
+    type: K,
+    listener: (event: Sender.EventMap[K]) => void,
+  ): this;
+}
+
+export class Sender extends EventEmitter {
   private socket: Socket;
 
   private readonly port: Sender.Props['port'];
@@ -65,6 +78,8 @@ export class Sender {
   private readonly defaultPacketOptions: Sender.Props['defaultPacketOptions'];
 
   private sequence = 0;
+
+  public resendStatus = false;
 
   #loopId: NodeJS.Timeout | undefined;
 
@@ -84,6 +99,7 @@ export class Sender {
     iface,
     useUnicastDestination,
   }: Sender.Props) {
+    super();
     this.port = port;
     this.universe = universe;
     this.#destinationIp = useUnicastDestination || multicastGroup(universe);
@@ -123,7 +139,23 @@ export class Sender {
   }
 
   private reSend() {
-    if (this.#latestPacketOptions) this.send(this.#latestPacketOptions);
+    if (this.#latestPacketOptions) {
+      this.send(this.#latestPacketOptions)
+        .then(() => {
+          this.updateResendStatus(true);
+        })
+        .catch((err) => {
+          this.updateResendStatus(false);
+          this.emit('error', err);
+        });
+    }
+  }
+
+  private updateResendStatus(success: boolean) {
+    if (success !== this.resendStatus) {
+      this.resendStatus = success;
+      this.emit('changedResendStatus', success);
+    }
   }
 
   public close(): this {
