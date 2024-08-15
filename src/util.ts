@@ -13,9 +13,9 @@ export const dp = (n: number, decimals = 2): number =>
 
 export function objectify(buf: Buffer): Payload {
   const data: Payload = {};
-  buf.forEach((val, ch) => {
+  for (const [ch, val] of buf.entries()) {
     if (val > 0) data[ch + 1] = dp(val / 2.55, 2); // rounding to 2dp will not lose any data
-  });
+  }
   return data;
 }
 
@@ -32,5 +32,6 @@ export function bit(bitt: 8 | 16 | 24 | 32, num: number): number[] {
   return chunks;
 }
 
-export const empty = (len: number): number[] =>
-  Array.from(new Uint8Array(new ArrayBuffer(len)));
+export const empty = (len: number): number[] => [
+  ...new Uint8Array(new ArrayBuffer(len)),
+];

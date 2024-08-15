@@ -2,12 +2,12 @@
 import assert from 'assert';
 
 import {
-  objectify,
-  multicastGroup,
-  inRange,
   bit,
-  empty,
   dp,
+  empty,
+  inRange,
+  multicastGroup,
+  objectify,
 } from '../src/util';
 
 describe('objectify', () => {

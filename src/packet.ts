@@ -3,13 +3,13 @@
  */
 
 import assert from 'assert';
-import { objectify, inRange, empty, bit, Payload } from './util';
+import { type Payload, bit, empty, inRange, objectify } from './util';
 import {
-  RootVector,
   ACN_PID,
-  FrameVector,
-  DmpVector,
   DEFAULT_CID,
+  DmpVector,
+  FrameVector,
+  RootVector,
 } from './constants';
 
 export interface Options {
@@ -90,7 +90,7 @@ export class Packet {
       this.frame_fl = buf.readUInt16BE(38);
       this.options = buf.readUInt8(112);
       this.sequence = buf.readUInt8(111);
-      // eslint-disable-next-line no-control-regex
+      // eslint-disable-next-line no-control-regex, unicorn/no-hex-escape
       this.sourceName = buf.toString('ascii', 44, 107).replace(/\x00/g, '');
       this.priority = buf.readUInt8(108);
       this.syncUniverse = buf.readUInt16BE(109);
@@ -148,6 +148,7 @@ export class Packet {
 
   public get buffer(): Buffer {
     const sourceNameBuf = Buffer.from(this.sourceName.padEnd(64, '\0'));
+    // eslint-disable-next-line unicorn/prefer-spread -- more readabile this way
     const n = (<number[]>[]).concat(
       /* root layer */
       bit(16, this.preambleSize), // 0,1 = preable size

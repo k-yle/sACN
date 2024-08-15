@@ -22,7 +22,6 @@ function createPackets(
 
 function deleteZeros(payload: Payload) {
   for (const ch in payload) {
-    // eslint-disable-next-line no-param-reassign
     if (!payload[ch]) delete payload[ch];
   }
 }

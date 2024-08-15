@@ -1,7 +1,7 @@
-import { Socket, createSocket } from 'dgram';
+import { type Socket, createSocket } from 'dgram';
 import { EventEmitter } from 'events';
 import { multicastGroup } from './util';
-import { Packet, Options } from './packet';
+import { type Options, Packet } from './packet';
 
 /** @deprecated - use {@link Sender.Props} instead */
 export type SenderProps = Sender.Props;

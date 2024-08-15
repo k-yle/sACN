@@ -28,7 +28,7 @@ jobs:
           CI: true
 
       - name: ✨ Lint
-        if: ${{ matrix.node-version != '10.x' }}
+        if: ${{ matrix.node-version != '10.x' && matrix.node-version != '12.x' && matrix.node-version != '14.x' && matrix.node-version != '16.x' }}
         run: |
           npm run lint
 

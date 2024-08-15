@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { networkInterfaces } from 'os';
-import { Receiver, Sender, Packet } from '../src';
+import { type Packet, Receiver, Sender } from '../src';
 
 const sleep = (ms: number) => new Promise((cb) => setTimeout(cb, ms));
 

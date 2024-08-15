@@ -1,4 +1,4 @@
-import { Socket, createSocket } from 'dgram';
+import { type Socket, createSocket } from 'dgram';
 import { EventEmitter } from 'events';
 import { AssertionError } from 'assert';
 
