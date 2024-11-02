@@ -94,9 +94,9 @@ export namespace MergingReceiver {
 }
 
 export declare interface MergingReceiver {
-  on<K extends keyof Receiver.EventMap>(
+  on<K extends keyof MergingReceiver.EventMap>(
     type: K,
-    listener: (event: Receiver.EventMap[K]) => void,
+    listener: (event: MergingReceiver.EventMap[K]) => void,
   ): this;
 }
 
