@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.6.1] - 2024-11-02
+
+### Changed
+
+- [#63]: Fix type defintions for `MergingReceiver`'s events
+
 ## [4.6.0] - 2024-08-06
 
 ### Added
