@@ -236,7 +236,7 @@ export class MergingReceiver extends Receiver {
       ) {
         for (let ch = 1; ch <= 512; ch += 1) {
           const newValue = packet.payload[ch] || 0;
-          if ((mergedData[ch] ?? 0) < newValue) {
+          if ((mergedData[ch] ?? 0) <= newValue) {
             mergedData[ch] = newValue;
           }
         }
