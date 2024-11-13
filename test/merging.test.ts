@@ -42,6 +42,8 @@ describe('HTP', () => {
         }),
       },
     });
+    deleteZeros(merged);
+
     expect(merged).toStrictEqual({
       // HTP applies to the whole packet, so channel 4 is 0, instead of 204
       // referenceData is irrelevant for HTP, so channel 5 is 0, instead of 5
@@ -66,6 +68,8 @@ describe('HTP', () => {
         }),
       },
     });
+    deleteZeros(merged);
+
     expect(merged).toStrictEqual({
       1: 201,
       2: 202,
